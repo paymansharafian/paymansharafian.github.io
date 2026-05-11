@@ -6,15 +6,15 @@ subtitle: Robotics Research Engineer | Ph.D. Candidate | Full-Stack Roboticist
 
 profile:
   align: right
-  image: prof_pic.jpg
+  image: My_photo2.jpg
   image_circular: false # crops the image to make it circular
   more_info: >
+    <p>Louisville Automation And Robotics Research Institute</p>
     <p>Louisville, KY</p>
-    <p>p0shar12@louisville.edu</p>
     <p>+1 (502) 296-0205</p>
 
 selected_papers: false
-social: false # disabled until the social-links data is compatible with the plugin
+social: true
 
 announcements:
   enabled: false
