@@ -1,0 +1,322 @@
+---
+layout: default
+---
+
+<!-- Full-viewport hero -->
+<div class="vh-hero">
+  <canvas id="hero-bg-canvas"></canvas>
+  <canvas id="robot-arm" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;"></canvas>
+  <div class="hero-center">
+    <p class="hero-hi">HI, I'M</p>
+    <h1 class="hero-name">
+      <span class="name-first">Payman</span>
+      <span class="name-last">Sharafian</span>
+    </h1>
+    <p class="hero-sub">Robotics Research Engineer &nbsp;&middot;&nbsp; Ph.D. Candidate</p>
+    <div class="hero-btns">
+      <a href="{{ '/projects/' | relative_url }}" class="hbtn hbtn-fill">What I&rsquo;m doing &rarr;</a>
+      <a href="#contact" class="hbtn hbtn-ghost">Get in touch</a>
+    </div>
+  </div>
+  <div class="hero-scroll-hint">scroll &darr;</div>
+</div>
+
+<!-- Contact section -->
+<section id="contact" class="contact-section">
+  <h2 class="contact-title">Let&rsquo;s talk<span class="accent-dot">.</span></h2>
+  <div class="contact-body">
+    <div class="contact-left">
+      <p class="contact-tagline">// drop me a line</p>
+      <p class="contact-desc">Open to research collaborations, industry opportunities, and interesting conversations about robotics.</p>
+    </div>
+    <div class="contact-table">
+      <div class="contact-row">
+        <span class="contact-label">LAT / LON</span>
+        <span class="contact-val">38.2527&deg;N &nbsp;&middot;&nbsp; 85.7585&deg;W</span>
+      </div>
+      <div class="contact-row">
+        <span class="contact-label">STATION</span>
+        <span class="contact-val">LARRI &nbsp;&middot;&nbsp; Louisville, KY</span>
+      </div>
+      <div class="contact-row">
+        <span class="contact-label">EMAIL</span>
+        <span class="contact-val"><a href="mailto:p0shar12@louisville.edu">p0shar12@louisville.edu</a></span>
+      </div>
+      <div class="contact-row">
+        <span class="contact-label">LINKEDIN</span>
+        <span class="contact-val"><a href="https://linkedin.com/in/paymansharafian" target="_blank">/in/paymansharafian &rarr;</a></span>
+      </div>
+      <div class="contact-row">
+        <span class="contact-label">SCHOLAR</span>
+        <span class="contact-val"><a href="https://scholar.google.com/citations?user=FZB0nFkAAAAJ" target="_blank">Google Scholar &rarr;</a></span>
+      </div>
+      <div class="contact-row">
+        <span class="contact-label">GITHUB</span>
+        <span class="contact-val"><a href="https://github.com/paymansharafian" target="_blank">paymansharafian &rarr;</a></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+/* ── Hero ─────────────────────────────────────── */
+.vh-hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #080b0f;
+}
+
+#hero-bg-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.hero-center {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 2rem;
+  transform: translateY(-15vh);
+  transition: transform 220ms ease;
+}
+
+.hero-hi {
+  color: #58a6ff;
+  font-size: 1.1rem;
+  letter-spacing: 0.25em;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  font-family: monospace;
+}
+
+.hero-name {
+  font-size: clamp(2.2rem, 6vw, 4.5rem);
+  font-weight: 800;
+  line-height: 1.0;
+  margin: 0 0 1rem;
+  letter-spacing: -0.02em;
+}
+
+.name-first {
+  color: #e6edf3;
+}
+
+.name-last {
+  background: linear-gradient(135deg, #58a6ff 0%, #a5d6ff 50%, #79c0ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  color: #7d8590;
+  font-size: 1rem;
+  margin-bottom: 2.5rem;
+  letter-spacing: 0.05em;
+}
+
+.hero-btns {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.hbtn {
+  padding: 0.75rem 1.75rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  display: inline-block;
+}
+
+.hbtn-fill {
+  background: #58a6ff;
+  color: #080b0f;
+  border: 1.5px solid #58a6ff;
+}
+.hbtn-fill:hover {
+  background: #79baff;
+  border-color: #79baff;
+  color: #080b0f;
+  text-decoration: none;
+  transform: translateY(-2px);
+}
+
+.hbtn-ghost {
+  background: transparent;
+  color: #e6edf3;
+  border: 1.5px solid #30363d;
+}
+.hbtn-ghost:hover {
+  border-color: #58a6ff;
+  color: #58a6ff;
+  text-decoration: none;
+  transform: translateY(-2px);
+}
+
+.hero-scroll-hint {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #3d444d;
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  font-family: monospace;
+  z-index: 2;
+  animation: fadeUpDown 2s ease-in-out infinite;
+}
+
+@keyframes fadeUpDown {
+  0%, 100% { opacity: 0.4; transform: translateX(-50%) translateY(0); }
+  50% { opacity: 1; transform: translateX(-50%) translateY(4px); }
+}
+
+/* ── Contact ─────────────────────────────────── */
+.contact-section {
+  background: #080b0f;
+  padding: 6rem 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.contact-title {
+  font-size: 3rem;
+  font-weight: 800;
+  color: #e6edf3;
+  margin-bottom: 3rem;
+}
+
+.accent-dot {
+  color: #58a6ff;
+}
+
+.contact-body {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 4rem;
+  align-items: start;
+}
+
+.contact-tagline {
+  color: #58a6ff;
+  font-family: monospace;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.contact-desc {
+  color: #7d8590;
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.contact-row {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid #161b22;
+  align-items: center;
+}
+
+.contact-row:last-child { border-bottom: none; }
+
+.contact-label {
+  color: #3d444d;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  font-family: monospace;
+  font-weight: 600;
+}
+
+.contact-val {
+  color: #e6edf3;
+  font-size: 0.9rem;
+}
+
+.contact-val a {
+  color: #e6edf3;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.contact-val a:hover {
+  color: #58a6ff;
+}
+
+@media (max-width: 640px) {
+  .contact-body { grid-template-columns: 1fr; gap: 2rem; }
+  .hero-name { font-size: 3rem; }
+  .hero-center { transform: translateY(-4vh); }
+}
+</style>
+
+<script src="{{ '/assets/js/robot-arm.js' | relative_url }}"></script>
+<script>
+/* Animated dot grid background */
+(function () {
+  const canvas = document.getElementById('hero-bg-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H, dots = [];
+  const SPACING = 32;
+  let mouse = { x: -999, y: -999 };
+
+  function resize() {
+    W = canvas.width = canvas.offsetWidth;
+    H = canvas.height = canvas.offsetHeight;
+    dots = [];
+    for (let x = SPACING / 2; x < W; x += SPACING)
+      for (let y = SPACING / 2; y < H; y += SPACING)
+        dots.push({ x, y, bx: x, by: y });
+  }
+
+  window.addEventListener('resize', resize);
+  canvas.closest('.vh-hero').addEventListener('mousemove', e => {
+    const r = canvas.getBoundingClientRect();
+    mouse.x = e.clientX - r.left;
+    mouse.y = e.clientY - r.top;
+  });
+  canvas.closest('.vh-hero').addEventListener('mouseleave', () => { mouse.x = -999; mouse.y = -999; });
+
+  resize();
+  let t = 0;
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    t += 0.003;
+    dots.forEach(d => {
+      d.x = d.bx + Math.sin(d.bx * 0.012 + t) * 2;
+      d.y = d.by + Math.cos(d.by * 0.012 + t) * 2;
+      const dx = d.x - mouse.x, dy = d.y - mouse.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const inf = Math.max(0, 1 - dist / 120);
+      const alpha = 0.12 + inf * 0.5;
+      const r = 1.1 + inf * 2.5;
+      ctx.beginPath();
+      ctx.arc(d.x, d.y, r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(88,166,255,${alpha})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* Smooth scroll for Get in touch */
+document.querySelector('a[href="#contact"]')?.addEventListener('click', e => {
+  e.preventDefault();
+  document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+});
+</script>

@@ -1,7 +1,9 @@
 ---
 layout: about
-title: about
-permalink: /
+title: About
+permalink: /about/
+nav: true
+nav_order: 2
 subtitle: Robotics Research Engineer | Ph.D. Candidate | Full-Stack Roboticist
 
 profile:

@@ -1,34 +1,35 @@
-<div class="col mb-4">
-  <a href="{% if project.redirect %}{{ project.redirect }}{% else %}{{ project.url | relative_url }}{% endif %}">
-    <div class="card h-100 hoverable">
-      <div class="row no-gutters">
-        {% if project.img %}
-          <div class="col-md-6">
-            {% include figure.liquid loading="eager" path=project.img sizes="(min-width: 768px) 156px, 50vw" alt="project thumbnail" class="card-img" %}
-          </div>
-        {% endif %}
-        <div class="{% if project.img %}col-md-6{% else %}col-md-12{% endif %}">
-          <div class="card-body">
-            <h3 class="card-title">{{ project.title }}</h3>
-            <p class="card-text">{{ project.description }}</p>
-            <div class="row ml-1 mr-1 p-0">
-              {% if project.github %}
-                <div class="github-icon">
-                  <div class="icon" data-toggle="tooltip" title="Code Repository">
-                    <a href="{{ project.github }}"><i class="fa-brands fa-github gh-icon"></i></a>
-                  </div>
-                  {% if project.github_stars %}
-                    <span class="stars" data-toggle="tooltip" title="GitHub Stars">
-                      <i class="fa-solid fa-star"></i>
-                      <span id="{{ project.github_stars }}-stars"></span>
-                    </span>
-                  {% endif %}
-                </div>
-              {% endif %}
-            </div>
-          </div>
-        </div>
+<div class="project-row">
+  <div class="project-row-img">
+    {% if project.img %}
+      <a href="{{ project.url | relative_url }}">
+        {% include figure.liquid loading="lazy" path=project.img alt=project.title class="project-thumb" %}
+      </a>
+    {% else %}
+      <a href="{{ project.url | relative_url }}" class="project-thumb-placeholder"></a>
+    {% endif %}
+  </div>
+  <div class="project-row-content">
+    <h3 class="project-row-title">
+      <a href="{{ project.url | relative_url }}">{{ project.title }}</a>
+    </h3>
+    <p class="project-row-desc">{{ project.description }}</p>
+    {% if project.tech %}
+      <div class="project-row-tags">
+        {% for tag in project.tech %}
+          <span class="project-tag">{{ tag }}</span>
+        {% endfor %}
       </div>
+    {% endif %}
+    <div class="project-row-links">
+      {% if project.paper_url %}
+        <a href="{{ project.paper_url }}" target="_blank" rel="noopener" class="project-link">[Paper]</a>
+      {% endif %}
+      {% if project.video_url %}
+        <a href="{{ project.video_url }}" target="_blank" rel="noopener" class="project-link">[Video]</a>
+      {% endif %}
+      {% if project.github_url %}
+        <a href="{{ project.github_url }}" target="_blank" rel="noopener" class="project-link">[GitHub]</a>
+      {% endif %}
     </div>
-  </a>
+  </div>
 </div>
