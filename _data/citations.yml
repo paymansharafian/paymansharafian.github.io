@@ -1,5 +1,5 @@
 metadata:
-  last_updated: '2026-05-22'
+  last_updated: '2026-06-10'
 papers:
   FZB0nFkAAAAJ:2osOgNQ5qMEC:
     citations: 4
@@ -22,7 +22,7 @@ papers:
     title: Adaptive user interface with parallel neural networks for robot teleoperation
     year: '2024'
   FZB0nFkAAAAJ:W7OEmFMy1HYC:
-    citations: 0
+    citations: 1
     title: "A Dual-Validation Framework for Temporal Robustness Assessment in Brain\u2013Computer Interfaces for Motor Imagery"
     year: '2025'
   FZB0nFkAAAAJ:Y0pCki6q_DkC:
@@ -38,7 +38,7 @@ papers:
     title: Multi-joint adaptive motion imitation in robot-assisted physiotherapy with dynamic time warping and recurrent neural networks
     year: '2024'
   FZB0nFkAAAAJ:eQOLeE2rZwMC:
-    citations: 0
+    citations: 1
     title: "Evaluation of a neuroadaptive admittance controller for ambulation through physical human\u2013robot interaction"
     year: '2025'
   FZB0nFkAAAAJ:u-x6o8ySG0sC:
