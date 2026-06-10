@@ -7,32 +7,50 @@ nav_order: 2
 subtitle: Robotics Research Engineer | Ph.D. Candidate | Full-Stack Roboticist
 
 profile:
-  align: right
+  align: left
   image: My_photo2.jpg
-  image_circular: false # crops the image to make it circular
-  more_info: >
-    <p>Louisville Automation And Robotics Research Institute</p>
-    <p>Louisville, KY</p>
-    <p>+1 (502) 296-0205</p>
+  image_circular: false
+
+education:
+  - degree: "Ph.D. Robotics Engineering"
+    school: "University of Louisville"
+    dates: "2021 – Present"
+  - degree: "M.Sc. Mechatronics Engineering"
+    school: "University of Tehran"
+    dates: "2018 – 2021"
+  - degree: "B.Sc. Electrical Power Engineering"
+    school: "University of Tehran"
+    dates: "2014 – 2018"
+
+skills:
+  - Python
+  - C / C++
+  - ROS / ROS2
+  - MATLAB
+  - Simulink
+  - MoveIt
+  - Gazebo
+  - PyTorch
+  - FastSAM
+  - OpenCV
+  - Contact GraspNet
+  - MPC-CBF
+  - FABRIK IK
+  - Docker
+  - Git
 
 selected_papers: false
-social: true
+social: false
 
 announcements:
   enabled: false
-  scrollable: true # adds a vertical scroll bar if there are more than 3 news items
-  limit: 5 # leave blank to include all the news in the `_news` folder
+  scrollable: true
+  limit: 5
 
 latest_posts:
   enabled: false
-  scrollable: true # adds a vertical scroll bar if there are more than 3 new posts items
-  limit: 3 # leave blank to include all the blog posts
+  scrollable: true
+  limit: 3
 ---
 
-I am a robotics research engineer and Ph.D. candidate at the University of Louisville, working with the Louisville Automation and Robotics Research Institute (LARRI). My work bridges physical human-robot interaction, sensor fusion, adaptive control, and full-stack robot teleoperation.
-
-Recent projects include the Adaptive Nursing Assistant Robot (ARNA), a real-time tactile sensor fusion pipeline, custom hardware prototyping for sensorized handles, and web-based teleoperation tools that combine ROS, Next.js, and computer vision. I also have prior experience in mobile robotics, embedded systems, and audio-visual perception for assistive robotics.
-
-My background combines robotics software, hardware integration, and technical mentorship. I have supported clinical deployment work, written lab manuals and SOPs, and mentored students in hands-on robotics research.
-
-Research interests: pHRI, sensor fusion, deep learning for robotics, adaptive control, teleoperation, and healthcare robotics.
+I am a robotics research engineer and Ph.D. candidate at the University of Louisville, working with the Louisville Automation and Robotics Research Institute (LARRI). My work bridges physical human-robot interaction, sensor fusion, adaptive control, and full-stack robot teleoperation. My background combines robotics software, hardware integration, and technical mentorship. I have supported clinical deployment work, written lab manuals and SOPs, and mentored students in hands-on robotics research.

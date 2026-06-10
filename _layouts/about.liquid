@@ -1,80 +1,121 @@
 ---
 layout: default
 ---
+
 <div class="post">
-  <header class="post-header">
-    <h1 class="post-title">
-      {% if site.title == 'blank' %}
-        <span class="font-weight-bold">{{ site.first_name }}</span> {{ site.middle_name }}
-        {{ site.last_name }}
-      {% else %}
-        {{ site.title }}
-      {% endif %}
-    </h1>
-    <p class="desc">{{ page.subtitle }}</p>
-  </header>
+  <div class="about-wrapper">
 
-  <article>
-    {% if page.profile %}
-      <div class="profile float-{% if page.profile.align == 'left' %}left{% else %}right{% endif %}">
-        {% if page.profile.image %}
-          {% assign profile_image_path = page.profile.image | prepend: 'assets/img/' %}
-          {% if page.profile.image_circular %}
-            {% assign profile_image_class = 'img-fluid z-depth-1 rounded-circle' %}
-          {% else %}
-            {% assign profile_image_class = 'img-fluid z-depth-1
-      rounded' %}
+    {% if page.profile and page.profile.image %}
+      <div class="about-sidebar">
+        {% assign profile_image_path = page.profile.image | prepend: 'assets/img/' %}
+        <img
+          src="{{ profile_image_path | relative_url }}"
+          alt="{{ page.profile.image }}"
+          class="about-profile-img"
+          loading="eager"
+        >
+        <div class="about-contact">
+          {% if site.data.socials.email %}
+            <div class="about-contact-row">
+              <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+              <a href="mailto:{{ site.data.socials.email }}">{{ site.data.socials.email }}</a>
+            </div>
           {% endif %}
-          {% capture sizes %}(min-width: {{ site.max_width }}) {{ site.max_width | minus: 30 | times: 0.3}}px, (min-width: 576px)
-      30vw, 95vw"{% endcapture %}
-          {%
-            include figure.liquid loading="eager" path=profile_image_path class=profile_image_class sizes=sizes alt=page.profile.image
-            cache_bust=true
-          %}
-        {% endif %}
-        {% if page.profile.more_info %}
-          <div class="more-info">{{ page.profile.more_info }}</div>
-        {% endif %}
+          {% if site.data.socials.scholar_userid %}
+            <div class="about-contact-row">
+              <i class="ai ai-google-scholar" aria-hidden="true"></i>
+              <a
+                href="https://scholar.google.com/citations?user={{ site.data.socials.scholar_userid }}"
+                target="_blank"
+                rel="noopener noreferrer"
+              >Google Scholar</a>
+            </div>
+          {% endif %}
+          {% if site.data.socials.github_username %}
+            <div class="about-contact-row">
+              <i class="fa-brands fa-github" aria-hidden="true"></i>
+              <a
+                href="https://github.com/{{ site.data.socials.github_username }}"
+                target="_blank"
+                rel="noopener noreferrer"
+              >{{ site.data.socials.github_username }}</a>
+            </div>
+          {% endif %}
+          {% if site.data.socials.linkedin_username %}
+            <div class="about-contact-row">
+              <i class="fa-brands fa-linkedin" aria-hidden="true"></i>
+              <a
+                href="https://linkedin.com/in/{{ site.data.socials.linkedin_username }}"
+                target="_blank"
+                rel="noopener noreferrer"
+              >LinkedIn</a>
+            </div>
+          {% endif %}
+        </div>
       </div>
     {% endif %}
 
-    <div class="clearfix">{{ content }}</div>
+    <div class="about-main">
+      <header class="post-header">
+        <h1 class="post-title">
+          {{ page.title }}<span class="accent-dot">.</span>
+        </h1>
+        <p class="desc">{{ page.subtitle }}</p>
+      </header>
 
-    <!-- News -->
-    {% if page.announcements and page.announcements.enabled %}
-      <h2>
-        <a href="{{ '/news/' | relative_url }}" style="color: inherit">news</a>
-      </h2>
-      {% include news.liquid limit=true %}
-    {% endif %}
+      <article>
+        {{ content }}
 
-    <!-- Latest posts -->
-    {% if page.latest_posts and page.latest_posts.enabled %}
-      <h2>
-        <a href="{{ '/blog/' | relative_url }}" style="color: inherit">latest posts</a>
-      </h2>
-      {% include latest_posts.liquid %}
-    {% endif %}
+        {% if page.education %}
+          <h2 class="about-section-heading">Education</h2>
+          <ul class="about-edu-list">
+            {% for entry in page.education %}
+              <li class="about-edu-item">
+                <div class="about-edu-dot"></div>
+                <div>
+                  <span class="about-edu-degree">{{ entry.degree }}</span>
+                  <span class="about-edu-meta"> — {{ entry.dates }} &middot; {{ entry.school }}</span>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
 
-    <!-- Selected papers -->
-    {% if page.selected_papers %}
-      <h2>
-        <a href="{{ '/publications/' | relative_url }}" style="color: inherit">selected publications</a>
-      </h2>
-      {% include selected_papers.liquid %}
-    {% endif %}
+        {% if page.skills %}
+          <h2 class="about-section-heading">Skills</h2>
+          <div class="about-skills-wrap">
+            {% for skill in page.skills %}
+              <span class="skill-pill">{{ skill }}</span>
+            {% endfor %}
+          </div>
+        {% endif %}
 
-    <!-- Social -->
-    {% if page.social %}
-      <div class="social">
-        <div class="contact-icons">{% social_links %}</div>
+        {% if page.announcements and page.announcements.enabled %}
+          <h2>
+            <a href="{{ '/news/' | relative_url }}" style="color: inherit">news</a>
+          </h2>
+          {% include news.liquid limit=true %}
+        {% endif %}
 
-        <div class="contact-note">{{ site.contact_note }}</div>
-      </div>
-    {% endif %}
+        {% if page.latest_posts and page.latest_posts.enabled %}
+          <h2>
+            <a href="{{ '/blog/' | relative_url }}" style="color: inherit">latest posts</a>
+          </h2>
+          {% include latest_posts.liquid %}
+        {% endif %}
 
-    {% if site.newsletter and site.newsletter.enabled and site.footer_fixed %}
-      {% include newsletter.liquid center=true %}
-    {% endif %}
-  </article>
+        {% if page.selected_papers %}
+          <h2>
+            <a href="{{ '/publications/' | relative_url }}" style="color: inherit">selected publications</a>
+          </h2>
+          {% include selected_papers.liquid %}
+        {% endif %}
+
+        {% if site.newsletter and site.newsletter.enabled and site.footer_fixed %}
+          {% include newsletter.liquid center=true %}
+        {% endif %}
+      </article>
+    </div>
+
+  </div>
 </div>

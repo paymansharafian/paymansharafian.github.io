@@ -370,3 +370,133 @@ ul.task-list input[type="checkbox"] {
     height: 160px;
   }
 }
+
+// ── About page sidebar layout ──
+
+.accent-dot {
+  color: var(--global-theme-color);
+}
+
+.about-wrapper {
+  display: flex;
+  gap: 2.5rem;
+  align-items: flex-start;
+}
+
+.about-sidebar {
+  width: 170px;
+  flex-shrink: 0;
+}
+
+.about-profile-img {
+  width: 100%;
+  border-radius: 10px;
+  border: 2.5px solid var(--global-theme-color);
+  box-shadow: 0 0 24px rgba(88, 166, 255, 0.18);
+  display: block;
+}
+
+.about-contact {
+  margin-top: 1rem;
+}
+
+.about-contact-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: var(--global-text-color-light);
+  margin-bottom: 0.45rem;
+
+  i {
+    width: 14px;
+    color: var(--global-theme-color);
+    font-size: 0.8rem;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  a {
+    color: var(--global-text-color-light);
+    text-decoration: none;
+    word-break: break-all;
+
+    &:hover {
+      color: var(--global-theme-color);
+    }
+  }
+}
+
+.about-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.about-section-heading {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--global-theme-color);
+  margin: 1.5rem 0 0.75rem;
+}
+
+.about-edu-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0.5rem;
+}
+
+.about-edu-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.about-edu-dot {
+  width: 9px;
+  height: 9px;
+  background: var(--global-theme-color);
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+.about-edu-degree {
+  font-weight: 700;
+}
+
+.about-edu-meta {
+  color: var(--global-text-color-light);
+  font-size: 0.875rem;
+}
+
+.about-skills-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.skill-pill {
+  background: var(--global-card-bg-color);
+  border: 1px solid var(--global-divider-color);
+  color: var(--global-text-color);
+  font-size: 0.82rem;
+  padding: 4px 14px;
+  border-radius: 20px;
+}
+
+@media (max-width: 640px) {
+  .about-wrapper {
+    flex-direction: column;
+  }
+
+  .about-sidebar {
+    width: 100%;
+  }
+
+  .about-profile-img {
+    max-width: 140px;
+  }
+}
