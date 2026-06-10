@@ -7,7 +7,7 @@ layout: default
   <canvas id="hero-bg-canvas"></canvas>
   <canvas id="robot-arm" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;"></canvas>
   <div class="hero-center">
-    <p class="hero-hi">HI, I'M</p>
+    <p class="hero-hi">Hi, I'm</p>
     <h1 class="hero-name">
       <span class="name-first">Payman</span>
       <span class="name-last">Sharafian</span>
@@ -23,19 +23,19 @@ layout: default
 
 <!-- Contact section -->
 <section id="contact" class="contact-section">
-  <h2 class="contact-title">Let&rsquo;s talk<span class="accent-dot">.</span></h2>
+  <h3 class="contact-title">Let&rsquo;s talk.<span class="accent-dot"></span></h3>
   <div class="contact-body">
     <div class="contact-left">
-      <p class="contact-tagline">// drop me a line</p>
       <p class="contact-desc">Open to research collaborations, industry opportunities, and interesting conversations about robotics.</p>
+      <canvas id="pixel-runner" title="Click or Space to jump"></canvas>
     </div>
     <div class="contact-table">
-      <div class="contact-row">
+      <!-- <div class="contact-row">
         <span class="contact-label">LAT / LON</span>
         <span class="contact-val">38.2527&deg;N &nbsp;&middot;&nbsp; 85.7585&deg;W</span>
-      </div>
+      </div> -->
       <div class="contact-row">
-        <span class="contact-label">STATION</span>
+        <span class="contact-label">LOCATION</span>
         <span class="contact-val">LARRI &nbsp;&middot;&nbsp; Louisville, KY</span>
       </div>
       <div class="contact-row">
@@ -131,7 +131,7 @@ layout: default
 }
 
 .hbtn {
-  padding: 0.75rem 1.75rem;
+  padding: 0.75rem 0.75rem;
   border-radius: 8px;
   font-size: 0.95rem;
   font-weight: 500;
@@ -141,16 +141,18 @@ layout: default
 }
 
 .hbtn-fill {
-  background: #58a6ff;
+  background: linear-gradient(135deg, #58a6ff 0%, #79c0ff 50%, #a5d6ff 100%);
   color: #080b0f;
   border: 1.5px solid #58a6ff;
+  animation: pulse-glow 2.5s ease-in-out infinite;
 }
 .hbtn-fill:hover {
-  background: #79baff;
+  background: linear-gradient(135deg, #79baff 0%, #a5d6ff 50%, #c5e8ff 100%);
   border-color: #79baff;
   color: #080b0f;
   text-decoration: none;
   transform: translateY(-2px);
+  animation: none;
 }
 
 .hbtn-ghost {
@@ -181,6 +183,15 @@ layout: default
 @keyframes fadeUpDown {
   0%, 100% { opacity: 0.4; transform: translateX(-50%) translateY(0); }
   50% { opacity: 1; transform: translateX(-50%) translateY(4px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(88, 166, 255, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 12px 4px rgba(88, 166, 255, 0.15);
+  }
 }
 
 /* ── Contact ─────────────────────────────────── */
@@ -260,6 +271,19 @@ layout: default
   .hero-name { font-size: 3rem; }
   .hero-center { transform: translateY(-4vh); }
 }
+
+#pixel-runner {
+  display: block;
+  width: 100%;
+  max-width: 420px;
+  height: 150px;
+  margin-top: 1.5rem;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  cursor: pointer;
+  border-radius: 4px;
+  border: 1px solid rgba(88, 166, 255, 0.1);
+}
 </style>
 
 <script src="{{ '/assets/js/robot-arm.js' | relative_url }}"></script>
@@ -319,4 +343,243 @@ document.querySelector('a[href="#contact"]')?.addEventListener('click', e => {
   e.preventDefault();
   document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
 });
+
+/* ── Pixel-art ARNA runner game ── */
+(function () {
+  const cv = document.getElementById('pixel-runner');
+  if (!cv) return;
+  const ctx = cv.getContext('2d');
+
+  const P = 4;
+  const CH = 150;
+  let CW, VW;
+  const VH = Math.floor(CH / P);
+  const GY = 30;
+
+  function resizeCanvas() {
+    CW = cv.offsetWidth || 380;
+    cv.width = CW;
+    cv.height = CH;
+    VW = Math.floor(CW / P);
+  }
+
+  const B = '#58a6ff', D = '#060a10', R = '#c41e1e', GR = '#3d5a80', L = '#a5d6ff', GN = '#3fb950';
+
+  function px(vx, vy, col) {
+    if (!col || vx < 0 || vy < 0 || vx >= VW || vy >= VH) return;
+    ctx.fillStyle = col;
+    ctx.fillRect(vx * P, vy * P, P, P);
+  }
+
+  const ROB_BASE_X = 6;
+  const rob = { vx: ROB_BASE_X, vy: GY, velY: 0, velX: 0, onGround: true, t: 0 };
+
+  function doJump() {
+    if (rob.onGround) { rob.velY = -2.9; rob.velX = 0.7; rob.onGround = false; }
+  }
+
+  function drawRobot() {
+    const rx = Math.round(rob.vx), ry = Math.round(rob.vy);
+    const spin = Math.floor(rob.t / 4) % 2;
+    [[rx + 1, rx + 2], [rx + 7, rx + 8]].forEach(([a, b]) => {
+      px(a, ry, spin ? B : GR); px(b, ry, spin ? GR : B);
+      px(a, ry - 1, spin ? GR : B); px(b, ry - 1, spin ? B : GR);
+    });
+    for (let i = 0; i < 10; i++) px(rx + i, ry - 5, B);
+    for (let row = 1; row <= 2; row++) {
+      px(rx, ry - 5 + row, B);
+      for (let i = 1; i < 9; i++) px(rx + i, ry - 5 + row, D);
+      px(rx + 9, ry - 5 + row, B);
+    }
+    for (let i = 0; i < 10; i++) px(rx + i, ry - 2, R);
+    const sw = Math.round(Math.sin(rob.t * 0.13) * 1.5);
+    const ax = rx + 5, ay = ry - 6;
+    px(ax, ay, B); px(ax, ay - 1, B);
+    px(ax + sw, ay - 2, B); px(ax + sw, ay - 3, L);
+    px(ax + sw - 1, ay - 4, L); px(ax + sw + 1, ay - 4, L);
+  }
+
+  let obstacles = [], nextObs = 38;
+
+  function drawObstacle(o) {
+    const ox = Math.round(o.vx), oy = GY;
+    for (let i = 0; i <= o.h; i++) px(ox + 1, oy - i, GN);
+    const aY = Math.round(o.h * 0.55);
+    px(ox, oy - aY, GN); px(ox, oy - aY + 1, GN); px(ox, oy - aY - 1, GN);
+    px(ox + 2, oy - aY, GN); px(ox + 2, oy - aY + 1, GN); px(ox + 2, oy - aY - 1, GN);
+  }
+
+  function drawGround() {
+    ctx.fillStyle = 'rgba(88,166,255,0.18)';
+    ctx.fillRect(0, (GY + 1) * P, CW, 1);
+    ctx.fillStyle = 'rgba(88,166,255,0.07)';
+    for (let i = 0; i < VW; i += 8) ctx.fillRect(i * P, (GY + 1) * P + 3, 4 * P, 1);
+  }
+
+  const FONT = {
+    '0':['111','101','101','101','111'],'1':['010','110','010','010','111'],
+    '2':['111','001','111','100','111'],'3':['111','001','111','001','111'],
+    '4':['101','101','111','001','001'],'5':['111','100','111','001','111'],
+    '6':['111','100','111','101','111'],'7':['111','001','001','001','001'],
+    '8':['111','101','111','101','111'],'9':['111','101','111','001','111'],
+    'A':['111','101','111','101','101'],'B':['110','101','110','101','110'],
+    'C':['111','100','100','100','111'],'D':['110','101','101','101','110'],
+    'E':['111','100','111','100','111'],'F':['111','100','111','100','100'],
+    'G':['111','100','101','101','111'],'H':['101','101','111','101','101'],
+    'I':['111','010','010','010','111'],'J':['011','001','001','101','111'],
+    'K':['101','110','100','110','101'],'L':['100','100','100','100','111'],
+    'M':['101','111','101','101','101'],'N':['101','111','111','101','101'],
+    'O':['111','101','101','101','111'],'P':['111','101','111','100','100'],
+    'R':['110','101','110','101','101'],'S':['111','100','111','001','111'],
+    'T':['111','010','010','010','010'],'U':['101','101','101','101','111'],
+    'V':['101','101','101','101','010'],'W':['101','101','101','111','101'],
+    'X':['101','101','010','101','101'],'Y':['101','101','010','010','010'],
+    'Z':['111','001','010','100','111'],' ':['000','000','000','000','000'],
+    '!':['010','010','010','000','010'],':':['000','010','000','010','000'],
+  };
+
+  function drawText(text, startVX, startVY, col) {
+    let cx = startVX;
+    for (const ch of text.toUpperCase()) {
+      const glyph = FONT[ch] || FONT[' '];
+      for (let row = 0; row < 5; row++)
+        for (let c = 0; c < 3; c++)
+          if (glyph[row][c] === '1') px(cx + c, startVY + row, col);
+      cx += 4;
+    }
+  }
+
+  function textVW(text) { return text.length * 4 - 1; }
+
+  function drawCenteredText(lines, col, startY) {
+    let sy = startY !== undefined ? startY : Math.floor((GY - lines.length * 7) / 2);
+    for (const line of lines) {
+      drawText(line, Math.floor((VW - textVW(line)) / 2), sy, col);
+      sy += 7;
+    }
+  }
+
+  function drawScore(s) {
+    const str = Math.floor(s).toString().padStart(5, '0');
+    drawText(str, VW - str.length * 4 - 1, 1, 'rgba(88,166,255,0.5)');
+  }
+
+  // Difficulty configs
+  const DIFF = {
+    easy:   { initSpeed: 0.10, ramp: 0.000005, obsMin: 4, obsRange: 3, gapMin: 95, gapRange: 70 },
+    medium: { initSpeed: 0.17, ramp: 0.000016, obsMin: 5, obsRange: 4, gapMin: 58, gapRange: 45 },
+    hard:   { initSpeed: 0.26, ramp: 0.000030, obsMin: 6, obsRange: 5, gapMin: 36, gapRange: 28 },
+  };
+  const DIFF_LABELS = ['EASY', 'MED', 'HARD'];
+  const DIFF_KEYS   = ['easy', 'medium', 'hard'];
+  const DIFF_COLORS = ['#3fb950', '#58a6ff', '#ff6b6b'];
+
+  let cfg = DIFF.medium;
+  let state = 'select', selectedDiff = 'medium';
+  let score = 0, bestScores = { easy: 0, medium: 0, hard: 0 };
+  let speed = 0, frames = 0;
+
+  function startGame(diff) {
+    cfg = DIFF[diff]; selectedDiff = diff;
+    state = 'playing'; score = 0; frames = 0; speed = cfg.initSpeed;
+    obstacles = []; nextObs = 38;
+    rob.vx = ROB_BASE_X; rob.vy = GY; rob.velY = 0; rob.velX = 0;
+    rob.onGround = true; rob.t = 0;
+  }
+
+  function drawSelectScreen() {
+    drawCenteredText(['DIFFICULTY'], B, 2);
+    const zones = [Math.floor(VW * 0.18), Math.floor(VW * 0.50), Math.floor(VW * 0.80)];
+    DIFF_LABELS.forEach((label, i) => {
+      const col = DIFF_COLORS[i];
+      const tx = zones[i] - Math.floor(textVW(label) / 2);
+      drawText(label, tx, 12, col);
+      if (DIFF_KEYS[i] === selectedDiff)
+        for (let x = tx - 1; x <= tx + textVW(label); x++) px(x, 18, col);
+    });
+    drawCenteredText(['CLICK TO START'], 'rgba(88,166,255,0.5)', 22);
+  }
+
+  function checkCollision() {
+    const rx = Math.round(rob.vx) + 2, ry = Math.round(rob.vy) - 2;
+    for (const o of obstacles) {
+      const ox = Math.round(o.vx);
+      if (ox + 3 > rx && ox < rx + 6 && ry > GY - o.h) return true;
+    }
+    return false;
+  }
+
+  function update() {
+    if (state !== 'playing') return;
+    frames++; rob.t++; score += speed;
+    speed = cfg.initSpeed + frames * cfg.ramp;
+
+    // Horizontal jump arc — forward burst that decays, snaps back on landing
+    rob.vx += rob.velX;
+    rob.velX *= 0.87;
+    if (rob.onGround) rob.vx += (ROB_BASE_X - rob.vx) * 0.22;
+    rob.vx = Math.max(1, Math.min(VW * 0.3, rob.vx));
+
+    rob.velY += 0.15; rob.vy += rob.velY;
+    if (rob.vy >= GY) { rob.vy = GY; rob.velY = 0; rob.onGround = true; }
+
+    nextObs -= speed;
+    if (nextObs <= 0) {
+      obstacles.push({ vx: VW + 1, h: cfg.obsMin + Math.floor(Math.random() * cfg.obsRange) });
+      nextObs = cfg.gapMin + Math.random() * cfg.gapRange;
+    }
+    obstacles.forEach(o => o.vx -= speed);
+    obstacles = obstacles.filter(o => o.vx > -4);
+
+    if (checkCollision()) {
+      state = 'dead';
+      bestScores[selectedDiff] = Math.max(bestScores[selectedDiff], Math.floor(score));
+    }
+  }
+
+  function render() {
+    ctx.clearRect(0, 0, CW, CH);
+    drawGround();
+    obstacles.forEach(drawObstacle);
+    drawRobot();
+    if (state === 'select') {
+      drawSelectScreen();
+    } else if (state === 'playing') {
+      drawScore(score);
+    } else if (state === 'dead') {
+      drawScore(score);
+      const best = 'BEST ' + bestScores[selectedDiff].toString().padStart(5, '0');
+      drawCenteredText(['GAME OVER', best, 'CLICK TO PLAY'], B);
+    }
+  }
+
+  function handleInput(clientX) {
+    const rect = cv.getBoundingClientRect();
+    const frac = (clientX - rect.left) / rect.width;
+    if (state === 'select') {
+      if (frac < 0.33) startGame('easy');
+      else if (frac < 0.66) startGame('medium');
+      else startGame('hard');
+    } else if (state === 'playing') {
+      doJump();
+    } else if (state === 'dead') {
+      state = 'select';
+    }
+  }
+
+  cv.addEventListener('click', e => handleInput(e.clientX));
+  cv.addEventListener('touchstart', e => { e.preventDefault(); handleInput(e.touches[0].clientX); }, { passive: false });
+  document.addEventListener('keydown', e => {
+    if (e.code === 'Space' || e.code === 'ArrowUp') {
+      e.preventDefault();
+      if (state === 'playing') doJump();
+      else if (state === 'select') startGame(selectedDiff);
+      else if (state === 'dead') state = 'select';
+    }
+  });
+
+  function loop() { resizeCanvas(); update(); render(); requestAnimationFrame(loop); }
+  resizeCanvas();
+  loop();
+})();
 </script>

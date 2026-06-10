@@ -9,7 +9,6 @@
 
   let W, H, scale;
   let baseX, baseY, baseTargetX;
-  let columnH, columnTargetH;
   let armRoot = { x: 0, y: 0 };
 
   const N_SEGS = 5;
@@ -25,6 +24,26 @@
   let idleT = 0;
   let gripperOpen = 0;
 
+  // Isometric box dimensions (in scale units)
+  const BASE_W = 160, BASE_H = 50, BASE_D = 60;
+
+  function iso(bx, by, bw, bh, bd) {
+    // Returns the 8 key 2D points for the isometric box
+    const dx = bd * 0.52, dy = bd * 0.26;
+    return {
+      // Front face (4 corners)
+      fbl: { x: bx - bw/2,      y: by },
+      fbr: { x: bx + bw/2,      y: by },
+      ftl: { x: bx - bw/2,      y: by - bh },
+      ftr: { x: bx + bw/2,      y: by - bh },
+      // Back face (offset by dx, dy)
+      bbl: { x: bx - bw/2 + dx, y: by - dy },
+      bbr: { x: bx + bw/2 + dx, y: by - dy },
+      btl: { x: bx - bw/2 + dx, y: by - bh - dy },
+      btr: { x: bx + bw/2 + dx, y: by - bh - dy },
+    };
+  }
+
   function resize() {
     const hero = canvas.closest('.vh-hero') || document.body;
     W = canvas.width = hero.offsetWidth;
@@ -34,11 +53,9 @@
     baseX = W * 0.52;
     baseTargetX = baseX;
     baseY = H * 0.75;
-    columnH = H * 0.3;
-    columnTargetH = columnH;
 
     SEGS = [95, 78, 63, 50, 36].map(s => s * scale);
-    LINK_W = [8.5, 7, 5.5, 4.5, 3.5].map(w => w * scale);
+    LINK_W = [8, 6.5, 5, 4, 3].map(w => w * scale);
 
     updateArmRoot();
     resetJoints();
@@ -47,8 +64,11 @@
   }
 
   function updateArmRoot() {
-    armRoot.x = baseX;
-    armRoot.y = baseY - columnH;
+    const bw = BASE_W * scale, bh = BASE_H * scale, bd = BASE_D * scale;
+    const dx = bd * 0.52, dy = bd * 0.26;
+    // Center of top face
+    armRoot.x = baseX + dx * 0.5;
+    armRoot.y = baseY - bh - dy * 0.5;
   }
 
   function resetJoints() {
@@ -110,189 +130,132 @@
   }
 
   function getIdleTarget() {
-    const cx = baseX - W * 0.1;
-    const cy = armRoot.y - H * 0.08;
+    const cx = baseX - W * 0.08;
+    const cy = armRoot.y - H * 0.1;
     return {
       x: cx + W * 0.16 * Math.sin(idleT * 0.38),
-      y: cy + H * 0.14 * Math.sin(idleT * 0.63),
+      y: cy + H * 0.15 * Math.sin(idleT * 0.61),
     };
   }
-
-  // ── Drawing helpers ────────────────────────────────────────────
 
   function glow(color, blur) { ctx.shadowColor = color; ctx.shadowBlur = blur; }
   function noGlow() { ctx.shadowBlur = 0; }
 
-  function rrect(x, y, w, h, r) {
+  function poly(pts) {
     ctx.beginPath();
-    if (ctx.roundRect) {
-      ctx.roundRect(x, y, w, h, r);
-    } else {
-      ctx.moveTo(x + r, y);
-      ctx.lineTo(x + w - r, y); ctx.arcTo(x+w, y, x+w, y+r, r);
-      ctx.lineTo(x + w, y + h - r); ctx.arcTo(x+w, y+h, x+w-r, y+h, r);
-      ctx.lineTo(x + r, y + h); ctx.arcTo(x, y+h, x, y+h-r, r);
-      ctx.lineTo(x, y + r); ctx.arcTo(x, y, x+r, y, r);
-      ctx.closePath();
-    }
-  }
-
-  function drawWalkerFrame() {
-    const bx = baseX, by = baseY;
-    const fw = 95 * scale;
-    const fh = 320 * scale;
-    const thick = 6 * scale;
-
-    ctx.save();
-    ctx.strokeStyle = 'rgba(100,145,190,0.22)';
-    ctx.lineWidth = thick;
-    ctx.lineCap = 'square';
-
-    // Left pillar
-    ctx.beginPath();
-    ctx.moveTo(bx - fw * 0.5, by + 2 * scale);
-    ctx.lineTo(bx - fw * 0.5, by - fh);
-    ctx.stroke();
-
-    // Right pillar
-    ctx.beginPath();
-    ctx.moveTo(bx + fw * 0.5, by + 2 * scale);
-    ctx.lineTo(bx + fw * 0.5, by - fh);
-    ctx.stroke();
-
-    // Top bar
-    ctx.lineWidth = thick * 1.2;
-    ctx.beginPath();
-    ctx.moveTo(bx - fw * 0.5 - 12 * scale, by - fh);
-    ctx.lineTo(bx + fw * 0.5 + 12 * scale, by - fh);
-    ctx.stroke();
-
-    // Mid cross bar
-    ctx.lineWidth = thick * 0.7;
-    ctx.strokeStyle = 'rgba(100,145,190,0.14)';
-    ctx.beginPath();
-    ctx.moveTo(bx - fw * 0.5, by - fh * 0.55);
-    ctx.lineTo(bx + fw * 0.5, by - fh * 0.55);
-    ctx.stroke();
-
-    // Diagonal bracing (subtle)
-    ctx.strokeStyle = 'rgba(100,145,190,0.08)';
-    ctx.lineWidth = 2.5 * scale;
-    ctx.beginPath();
-    ctx.moveTo(bx - fw * 0.5, by); ctx.lineTo(bx + fw * 0.5, by - fh * 0.5);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(bx + fw * 0.5, by); ctx.lineTo(bx - fw * 0.5, by - fh * 0.5);
-    ctx.stroke();
-
-    ctx.restore();
+    ctx.moveTo(pts[0].x, pts[0].y);
+    for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+    ctx.closePath();
   }
 
   function drawMobileBase() {
     const bx = baseX, by = baseY;
-    const bw = 125 * scale, bh = 42 * scale;
-    const r = 10 * scale;
+    const bw = BASE_W * scale, bh = BASE_H * scale, bd = BASE_D * scale;
+    const p = iso(bx, by, bw, bh, bd);
 
     ctx.save();
 
-    // Main body
-    glow(BLUE_GLOW, 18);
-    rrect(bx - bw * 0.5, by - bh, bw, bh, r);
-    ctx.fillStyle = 'rgba(8,11,15,0.93)';
-    ctx.fill();
-    ctx.strokeStyle = BLUE;
-    ctx.lineWidth = 1.6;
-    ctx.stroke();
-    noGlow();
-
-    // Red accent panel (ARNA's red)
-    rrect(bx - bw * 0.5, by - bh * 0.52, bw, bh * 0.44, [0, 0, r * 0.7, r * 0.7]);
-    ctx.fillStyle = 'rgba(180,28,28,0.32)';
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(200,40,40,0.45)';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-
-    // Top edge detail line
-    ctx.beginPath();
-    ctx.moveTo(bx - bw * 0.45, by - bh + 7 * scale);
-    ctx.lineTo(bx + bw * 0.45, by - bh + 7 * scale);
-    ctx.strokeStyle = BLUE_DIM;
-    ctx.lineWidth = 0.8;
-    ctx.stroke();
-
-    // Wheels
-    const wheelR = 11 * scale;
-    const wheelY = by - 5 * scale;
-    [-0.42, -0.18, 0.18, 0.42].forEach(ox => {
-      const wx = bx + bw * ox;
-      ctx.beginPath();
-      ctx.ellipse(wx, wheelY, wheelR * 0.45, wheelR, 0, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(16,20,28,0.97)';
-      ctx.fill();
-      ctx.strokeStyle = BLUE;
-      ctx.lineWidth = 1.2;
-      ctx.stroke();
-      // Wheel hub
-      ctx.beginPath();
-      ctx.arc(wx, wheelY, 2.5 * scale, 0, Math.PI * 2);
-      ctx.fillStyle = BLUE_DIM;
-      ctx.fill();
-    });
-
-    // Small logo circles (UofL nod)
-    [-0.3, 0.3].forEach(ox => {
-      ctx.beginPath();
-      ctx.arc(bx + bw * ox, by - bh * 0.72, 7 * scale, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(200,40,40,0.5)';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-    });
-
-    ctx.restore();
-  }
-
-  function drawColumn() {
-    const bx = baseX, by = baseY;
-    const cw = 13 * scale;
-    const ch = columnH;
-
-    ctx.save();
-
-    // Outer shell
-    glow(BLUE_GLOW, 10);
-    ctx.beginPath();
-    ctx.rect(bx - cw * 0.5, by - ch, cw, ch - 30 * scale);
-    ctx.fillStyle = 'rgba(8,11,15,0.92)';
+    // ── Top face ─────────────────────────────────────────────────
+    glow(BLUE_GLOW, 14);
+    poly([p.ftl, p.ftr, p.btr, p.btl]);
+    ctx.fillStyle = 'rgba(14,22,35,0.97)';
     ctx.fill();
     ctx.strokeStyle = BLUE;
     ctx.lineWidth = 1.4;
     ctx.stroke();
     noGlow();
 
-    // Telescoping inner segment
-    ctx.beginPath();
-    ctx.rect(bx - cw * 0.3, by - ch * 0.7, cw * 0.6, ch * 0.45);
+    // Top face grid lines
     ctx.strokeStyle = BLUE_DIM;
-    ctx.lineWidth = 0.9;
-    ctx.stroke();
+    ctx.lineWidth = 0.6;
+    const tMidX1 = (p.ftl.x + p.ftr.x) / 2, tMidY1 = (p.ftl.y + p.ftr.y) / 2;
+    const tMidX2 = (p.btl.x + p.btr.x) / 2, tMidY2 = (p.btl.y + p.btr.y) / 2;
+    ctx.beginPath(); ctx.moveTo(tMidX1, tMidY1); ctx.lineTo(tMidX2, tMidY2); ctx.stroke();
+    const tMidX3 = (p.ftl.x + p.btl.x) / 2, tMidY3 = (p.ftl.y + p.btl.y) / 2;
+    const tMidX4 = (p.ftr.x + p.btr.x) / 2, tMidY4 = (p.ftr.y + p.btr.y) / 2;
+    ctx.beginPath(); ctx.moveTo(tMidX3, tMidY3); ctx.lineTo(tMidX4, tMidY4); ctx.stroke();
 
-    // Mounting flange at top
-    ctx.beginPath();
-    ctx.rect(bx - cw, by - ch - 4 * scale, cw * 2, 8 * scale);
-    ctx.fillStyle = 'rgba(8,11,15,0.9)';
+    // ── Front face ────────────────────────────────────────────────
+    glow(BLUE_GLOW, 10);
+    poly([p.ftl, p.ftr, p.fbr, p.fbl]);
+    ctx.fillStyle = 'rgba(8,11,15,0.95)';
     ctx.fill();
     ctx.strokeStyle = BLUE;
-    ctx.lineWidth = 1.2;
+    ctx.lineWidth = 1.4;
+    ctx.stroke();
+    noGlow();
+
+    // Red panel on front face (lower 45%)
+    const redTop = p.ftl.y + bh * 0.55;
+    poly([
+      { x: p.ftl.x, y: redTop }, { x: p.ftr.x, y: redTop },
+      { x: p.fbr.x, y: p.fbr.y }, { x: p.fbl.x, y: p.fbl.y }
+    ]);
+    ctx.fillStyle = 'rgba(160,24,24,0.38)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(200,40,40,0.4)';
+    ctx.lineWidth = 0.8;
     ctx.stroke();
 
-    // Joint circle at column top
-    glow(BLUE_GLOW, 16);
-    ctx.beginPath(); ctx.arc(bx, by - ch, 10 * scale, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(8,11,15,0.92)'; ctx.fill();
-    ctx.strokeStyle = BLUE; ctx.lineWidth = 1.8; ctx.stroke();
-    ctx.beginPath(); ctx.arc(bx, by - ch, 4 * scale, 0, Math.PI * 2);
-    ctx.fillStyle = BLUE; ctx.fill();
+    // Front face detail line
+    ctx.beginPath();
+    ctx.moveTo(p.ftl.x + 8 * scale, p.ftl.y + 6 * scale);
+    ctx.lineTo(p.ftr.x - 8 * scale, p.ftr.y + 6 * scale);
+    ctx.strokeStyle = BLUE_DIM;
+    ctx.lineWidth = 0.7;
+    ctx.stroke();
+
+    // ── Right side face ───────────────────────────────────────────
+    glow(BLUE_GLOW, 8);
+    poly([p.ftr, p.btr, p.bbr, p.fbr]);
+    ctx.fillStyle = 'rgba(6,9,12,0.97)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(88,166,255,0.55)';
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+    noGlow();
+
+    // Right side red stripe
+    const rRedTop = p.ftr.y + bh * 0.55;
+    const rRedTopB = p.btr.y + bh * 0.55;
+    poly([
+      { x: p.ftr.x, y: rRedTop }, { x: p.btr.x, y: rRedTopB },
+      { x: p.bbr.x, y: p.bbr.y }, { x: p.fbr.x, y: p.fbr.y }
+    ]);
+    ctx.fillStyle = 'rgba(140,20,20,0.28)';
+    ctx.fill();
+
+    // ── Wheels on front face ──────────────────────────────────────
+    const wheelR = 14 * scale;
+    const wheelY = by - 5 * scale;
+    [-0.3, 0.3].forEach(ox => {
+      const wx = bx + (BASE_W * scale) * ox;
+      ctx.beginPath();
+      ctx.arc(wx, wheelY, wheelR, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(14,18,26,0.98)';
+      ctx.fill();
+      ctx.strokeStyle = BLUE;
+      ctx.lineWidth = 1.1;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(wx, wheelY, 2 * scale, 0, Math.PI * 2);
+      ctx.fillStyle = BLUE_DIM;
+      ctx.fill();
+    });
+
+    // ── Arm mount ring on top face ────────────────────────────────
+    glow(BLUE_GLOW, 18);
+    ctx.beginPath();
+    ctx.arc(armRoot.x, armRoot.y, 11 * scale, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(8,11,15,0.95)';
+    ctx.fill();
+    ctx.strokeStyle = BLUE;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(armRoot.x, armRoot.y, 4.5 * scale, 0, Math.PI * 2);
+    ctx.fillStyle = BLUE;
+    ctx.fill();
     noGlow();
 
     ctx.restore();
@@ -302,28 +265,68 @@
     const dx = x2 - x1, dy = y2 - y1;
     const len = Math.sqrt(dx * dx + dy * dy) || 1;
     const nx = -dy / len, ny = dx / len;
+
     ctx.save();
-    glow(BLUE_GLOW, 11);
+    glow(BLUE_GLOW, 10);
+
+    // Link body
     ctx.beginPath();
     ctx.moveTo(x1 + nx * w, y1 + ny * w);
-    ctx.lineTo(x2 + nx * w * 0.65, y2 + ny * w * 0.65);
-    ctx.lineTo(x2 - nx * w * 0.65, y2 - ny * w * 0.65);
+    ctx.lineTo(x2 + nx * w * 0.7, y2 + ny * w * 0.7);
+    ctx.lineTo(x2 - nx * w * 0.7, y2 - ny * w * 0.7);
     ctx.lineTo(x1 - nx * w, y1 - ny * w);
     ctx.closePath();
-    ctx.fillStyle = 'rgba(8,11,15,0.82)'; ctx.fill();
-    ctx.strokeStyle = BLUE; ctx.lineWidth = 1.3; ctx.stroke();
-    noGlow(); ctx.restore();
+
+    // Cylindrical gradient across the link width
+    const gx1 = (x1 + x2) / 2 + nx * w;
+    const gy1 = (y1 + y2) / 2 + ny * w;
+    const gx2 = (x1 + x2) / 2 - nx * w;
+    const gy2 = (y1 + y2) / 2 - ny * w;
+    const grad = ctx.createLinearGradient(gx1, gy1, gx2, gy2);
+    grad.addColorStop(0,   'rgba(30,50,75,0.75)');
+    grad.addColorStop(0.3, 'rgba(12,20,32,0.92)');
+    grad.addColorStop(0.7, 'rgba(8,14,22,0.95)');
+    grad.addColorStop(1,   'rgba(4,8,14,0.85)');
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    ctx.strokeStyle = BLUE;
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+
+    // Specular highlight strip
+    ctx.beginPath();
+    ctx.moveTo(x1 + nx * w * 0.55, y1 + ny * w * 0.55);
+    ctx.lineTo(x2 + nx * w * 0.38, y2 + ny * w * 0.38);
+    ctx.strokeStyle = 'rgba(165,214,255,0.22)';
+    ctx.lineWidth = w * 0.5;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+
+    noGlow();
+    ctx.restore();
   }
 
   function drawJoint(x, y, r) {
     ctx.save();
-    glow(BLUE_GLOW, 14);
+    glow(BLUE_GLOW, 16);
+
+    // Spherical radial gradient
+    const rg = ctx.createRadialGradient(x - r * 0.3, y - r * 0.3, r * 0.05, x, y, r);
+    rg.addColorStop(0,   'rgba(88,166,255,0.55)');
+    rg.addColorStop(0.4, 'rgba(20,35,55,0.92)');
+    rg.addColorStop(1,   'rgba(6,10,16,0.97)');
+
     ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(8,11,15,0.9)'; ctx.fill();
+    ctx.fillStyle = rg; ctx.fill();
     ctx.strokeStyle = BLUE; ctx.lineWidth = 1.4; ctx.stroke();
-    ctx.beginPath(); ctx.arc(x, y, r * 0.38, 0, Math.PI * 2);
-    ctx.fillStyle = BLUE_DIM; ctx.fill();
-    noGlow(); ctx.restore();
+
+    // Center dot
+    ctx.beginPath(); ctx.arc(x, y, r * 0.28, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(88,166,255,0.7)'; ctx.fill();
+
+    noGlow();
+    ctx.restore();
   }
 
   function drawGripper(x, y, angle, openAmt) {
@@ -356,9 +359,7 @@
   function draw() {
     ctx.clearRect(0, 0, W, H);
     drawTrail();
-    drawWalkerFrame();
     drawMobileBase();
-    drawColumn();
 
     const sz = scale;
     const jointR = [0, 6.5, 5.5, 5, 4.5, 4].map(r => r * sz);
@@ -373,20 +374,12 @@
   function loop() {
     idleT += 0.007;
 
-    // Base drift
+    // Base slow drift
     if (!hasMouseEntered) {
-      baseTargetX = W * 0.52 + Math.sin(idleT * 0.22) * W * 0.055;
+      baseTargetX = W * 0.52 + Math.sin(idleT * 0.22) * W * 0.05;
     }
     baseX += (baseTargetX - baseX) * 0.012;
-
-    // Column height oscillation
-    if (!hasMouseEntered) {
-      columnTargetH = H * 0.3 + Math.sin(idleT * 0.28) * H * 0.025;
-    }
-    columnH += (columnTargetH - columnH) * 0.018;
     updateArmRoot();
-
-    // Pin FABRIK root to column top
     joints[0].x = armRoot.x;
     joints[0].y = armRoot.y;
 
