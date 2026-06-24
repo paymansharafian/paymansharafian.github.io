@@ -284,7 +284,8 @@ ul.task-list input[type="checkbox"] {
   flex-shrink: 0;
   width: 280px;
 
-  img.project-thumb, .project-thumb {
+  img.project-thumb,
+  .project-thumb {
     width: 280px;
     height: 180px;
     object-fit: cover;
@@ -365,7 +366,10 @@ ul.task-list input[type="checkbox"] {
   .project-row {
     flex-direction: column;
   }
-  .project-row-img, .project-row-img img.project-thumb, .project-row-img .project-thumb, .project-row-img .project-thumb-placeholder {
+  .project-row-img,
+  .project-row-img img.project-thumb,
+  .project-row-img .project-thumb,
+  .project-row-img .project-thumb-placeholder {
     width: 100%;
     height: 160px;
   }
