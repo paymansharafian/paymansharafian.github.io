@@ -1,6 +1,6 @@
 ---
 layout: page
-title: "ARNA Teleoperation & Semi-Autonomous Grasping"
+title: "ARNA Remote Teleoperation & Semi-Autonomous Grasping"
 description: "Full-stack distributed teleoperation system for ARNA using ROS1 and Next.js with Cloudflare ingress and low-latency browser video streaming. Implemented semi-autonomous pick-and-place using FastSAM segmentation and Contact-GraspNet for point-and-click grasp execution."
 img:
 importance: 2
