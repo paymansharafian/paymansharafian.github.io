@@ -3,7 +3,7 @@ layout: page
 title: "PNNUI — Parallel Neural Network User Interface"
 description: "Real-time browser-based UI for running Parallel Neural Network genetic algorithm optimization on ARNA's control stack. Resolves ROS Python 2/3 dependency conflicts by containerizing the environment. Enables live parameter tuning via a custom Bash-scripted RTOS pipeline."
 img:
-importance: 7
+importance: 8
 category: work
 tech: [ROS1, Gazebo, Bash, PyGAD, Neural Networks, RTOS, Docker]
 ---
