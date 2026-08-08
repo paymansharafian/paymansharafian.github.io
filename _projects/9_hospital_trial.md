@@ -7,6 +7,7 @@ importance: 9
 category: work
 tech: [Clinical Trial, Technology Acceptance Model, HRI, Teleoperation, ROS, R, Mixed-Effects Models]
 paper_url: https://doi.org/10.1109/CASE58245.2025.11163757
+paper_venue: "IEEE CASE 2025"
 related_publications: sharafianardakani2025hospital
 ---
 

@@ -7,6 +7,7 @@ importance: 10
 category: work
 tech: [Technology Acceptance Model, Fall Prevention, Nursing Simulation, HRI, R, Regression Analysis]
 paper_url: https://doi.org/10.1177/21650799241262812
+paper_venue: "Workplace Health & Safety"
 related_publications: logsdon2024perceived
 ---
 

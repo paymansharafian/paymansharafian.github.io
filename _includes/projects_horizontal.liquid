@@ -22,7 +22,9 @@
     {% endif %}
     <div class="project-row-links">
       {% if project.paper_url %}
-        <a href="{{ project.paper_url }}" target="_blank" rel="noopener" class="project-link">[Paper]</a>
+        <a href="{{ project.paper_url }}" target="_blank" rel="noopener" class="project-link"
+          >[Full Paper{% if project.paper_venue %}: {{ project.paper_venue }}{% endif %}]</a
+        >
       {% endif %}
       {% if project.video_url %}
         <a href="{{ project.video_url }}" target="_blank" rel="noopener" class="project-link">[Video]</a>

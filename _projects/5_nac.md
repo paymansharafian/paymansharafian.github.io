@@ -3,7 +3,7 @@ layout: page
 title: "Neuroadaptive Admittance Controller"
 description: "Model-free neuroadaptive control (NAC) architecture for admittance-based physical human-robot interaction. Uses Multilayer Perceptrons (MLP) to approximate nonlinear robot dynamics in real time, reducing tracking error and motion jerk versus baseline PID and conventional admittance controllers. Stability verified via Lyapunov theory."
 img:
-importance: 5
+importance: 6
 category: work
 tech: [MATLAB, Simulink, ROS, MLP, Neural Networks, Lyapunov Stability, Admittance Control]
 paper_url:

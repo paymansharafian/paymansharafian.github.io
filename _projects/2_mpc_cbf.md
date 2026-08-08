@@ -3,7 +3,7 @@ layout: page
 title: "Network-Aware MPC-CBF for Safe Remote Teleoperation of ARNA"
 description: "Safety-critical shared control architecture for remote teleoperation of ARNA under degraded network conditions. Implements MPC-CBF and CBF-QP safety filters, dynamic watchdog coordination, LiDAR obstacle constraints, and a PGD-based operator intent estimator for adaptive autonomy blending."
 img:
-importance: 2
+importance: 3
 category: work
 tech: [ROS1, Python, C++, CasADi, qpOASES, MPC, CBF, LiDAR, Dynamic Reconfigure]
 ---

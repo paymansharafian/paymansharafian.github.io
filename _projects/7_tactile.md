@@ -3,7 +3,7 @@ layout: page
 title: "Tactile Handlebar & Deep Learning for Safe HRI"
 description: "End-to-end sensorized handlebar system for safe physical interaction with ARNA. Custom 3D-printed hardware integrates 16-channel FSR tactile arrays and ATI F/T sensors. A Temporal Convolutional Network (TCN) fuses multimodal signals to detect interaction events at 85% accuracy with 2.05ms latency."
 img:
-importance: 7
+importance: 8
 category: work
 tech: [PyTorch, TCN, ATI F/T, FSR, SolidWorks, 3D Printing, Sensor Fusion, Bayesian Optimization]
 paper_url:
