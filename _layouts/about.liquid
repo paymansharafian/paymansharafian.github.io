@@ -1,10 +1,8 @@
 ---
 layout: default
 ---
-
 <div class="post">
   <div class="about-wrapper">
-
     {% if page.profile and page.profile.image %}
       <div class="about-sidebar">
         {% assign profile_image_path = page.profile.image | prepend: 'assets/img/' %}
@@ -28,7 +26,8 @@ layout: default
                 href="https://scholar.google.com/citations?user={{ site.data.socials.scholar_userid }}"
                 target="_blank"
                 rel="noopener noreferrer"
-              >Google Scholar</a>
+                >Google Scholar</a
+              >
             </div>
           {% endif %}
           {% if site.data.socials.github_username %}
@@ -38,7 +37,9 @@ layout: default
                 href="https://github.com/{{ site.data.socials.github_username }}"
                 target="_blank"
                 rel="noopener noreferrer"
-              >{{ site.data.socials.github_username }}</a>
+              >
+                {{- site.data.socials.github_username -}}
+              </a>
             </div>
           {% endif %}
           {% if site.data.socials.linkedin_username %}
@@ -48,7 +49,8 @@ layout: default
                 href="https://linkedin.com/in/{{ site.data.socials.linkedin_username }}"
                 target="_blank"
                 rel="noopener noreferrer"
-              >LinkedIn</a>
+                >LinkedIn</a
+              >
             </div>
           {% endif %}
         </div>
@@ -58,7 +60,8 @@ layout: default
     <div class="about-main">
       <header class="post-header">
         <h1 class="post-title">
-          {{ page.title }}<span class="accent-dot">.</span>
+          {{ page.title -}}
+          <span class="accent-dot">.</span>
         </h1>
         <p class="desc">{{ page.subtitle }}</p>
       </header>
@@ -116,6 +119,5 @@ layout: default
         {% endif %}
       </article>
     </div>
-
   </div>
 </div>
