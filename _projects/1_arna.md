@@ -1,29 +1,25 @@
 ---
 layout: page
-title: "ARNA — Adaptive Nursing Assistant Robot"
+title: "ARNA — Adaptive Robotic Nursing Assistant"
 description: "NSF-funded omnidirectional mobile manipulator for clinical nursing assistance — Kinova Gen3 arm on a Mecanum base with LiDAR and ATI Axia 80 F/T sensing. Primary engineer across hardware, software, control, and clinical deployment since 2023."
-img: assets/img/arna/arna_hero_clinical.jpg
+img: assets/img/arna/ARNA_Thumbnail.jpg
 importance: 1
 category: work
 tech: [ROS1, Python, C++, Kinova Gen3, Mecanum Base, LiDAR, ATI F/T, EtherCAT, Jetson, Linux]
 ---
 
-<div class="arna-badges">
+<!-- <div class="arna-badges">
   <span class="arna-badge">NSF-Funded</span>
   <span class="arna-badge">Patent US12090629B2</span>
   <span class="arna-badge">58+ Nursing Students</span>
   <span class="arna-badge">15+ Patients</span>
   <span class="arna-badge">2023–Present</span>
-</div>
-
-<img class="arna-hero-img" src="{{ '/assets/img/arna/arna_hero_clinical.jpg' | relative_url }}" alt="Demonstrating ARNA to a patient during a hospital trial" loading="eager" />
-
-<p class="arna-lead">I led full-stack development of ARNA — from PCB repair to clinical deployment — as the primary engineer since 2023.</p>
+</div> -->
 
 <h2 class="arna-section-heading">Platform Overview</h2>
 <div class="arna-overview">
   <img class="arna-overview-fig" src="{{ '/assets/img/arna/arna_hardware_scheme.jpg' | relative_url }}" alt="Annotated ARNA hardware: Kinova arm, sensorized handlebar, LiDAR, RGBD cameras, and onboard sensors" loading="lazy" />
-  <p>ARNA (Adaptive Nursing Assistant Robot) is an NSF-funded omnidirectional mobile manipulator developed at LARRI for clinical nursing assistance. The platform pairs a Kinova Gen3 arm with a Mecanum-wheel base, LiDAR, ultrasonic/bump/IMU sensing, ATI Axia 80 force/torque sensors, and a sensorized handlebar, all running on a distributed ROS1 stack across an onboard PC and Jetson.</p>
+  <p>ARNA (Adaptive Robotic Nursing Assistant) is an NSF-funded omnidirectional mobile manipulator developed at LARRI for clinical nursing assistance. The platform pairs a Kinova Gen3 arm with a Mecanum-wheel base, LiDAR, ultrasonic/bump/IMU sensing, ATI Axia 80 force/torque sensors, and a sensorized handlebar, all running on a distributed ROS1 stack across an onboard PC and Jetson.</p>
   <p>ARNA targets two of the most physically demanding parts of nursing work — patient ambulation and fetch-and-carry tasks — by acting as both a smart walker and a teleoperable assistant, reducing strain on healthcare staff.</p>
 </div>
 
@@ -62,6 +58,11 @@ tech: [ROS1, Python, C++, Kinova Gen3, Mecanum Base, LiDAR, ATI F/T, EtherCAT, J
       <li>Led study design and data collection</li>
     </ul>
   </div>
+</div>
+
+<div class="arna-clinical-pair">
+  <img src="{{ '/assets/img/arna/arna_nurse_clinical.jpg' | relative_url }}" alt="Nurse using ARNA as a shared-control robotic walker during a clinical trial" loading="lazy" />
+  <img src="{{ '/assets/img/arna/arna_hero_clinical.jpg' | relative_url }}" alt="Demonstrating ARNA to a patient during a hospital trial" loading="lazy" />
 </div>
 
 <h2 class="arna-section-heading">Operational Scenarios</h2>

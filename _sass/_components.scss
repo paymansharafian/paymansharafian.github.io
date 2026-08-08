@@ -525,15 +525,18 @@ ul.task-list input[type="checkbox"] {
   white-space: nowrap;
 }
 
-.arna-hero-img {
-  width: 100%;
-  max-height: 460px;
-  object-fit: cover;
-  border-radius: 10px;
-  border: 1px solid var(--global-divider-color);
-  box-shadow: 0 0 24px rgba(88, 166, 255, 0.15);
-  display: block;
-  margin-bottom: 1rem;
+.arna-clinical-pair {
+  display: flex;
+  gap: 1.5rem;
+  margin: 1.5rem 0 2rem;
+
+  img {
+    flex: 1;
+    min-width: 0;
+    height: auto;
+    border-radius: 8px;
+    border: 1px solid var(--global-divider-color);
+  }
 }
 
 .arna-lead {
@@ -702,6 +705,10 @@ ul.task-list input[type="checkbox"] {
   }
 
   .arna-scenarios {
+    flex-direction: column;
+  }
+
+  .arna-clinical-pair {
     flex-direction: column;
   }
 
