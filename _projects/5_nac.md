@@ -2,7 +2,7 @@
 layout: page
 title: "Evaluation of a Neuroadaptive Admittance Controller for Ambulation"
 description: "First-author Intelligent Service Robotics paper evaluating NAC, a neural-network torque controller that gives ARNA its compliance as a robotic walker. Benchmarked against a classical PD controller with 10 users, then re-tuned and re-tested with 63 nursing students."
-img: assets/img/nac/nac_gazebo.jpg
+img: assets/img/nac/nac_walker_thumb.jpg
 importance: 6
 category: work
 tech: [ROS Kinetic, Gazebo, MATLAB, MLP, Neural Networks, Lyapunov Stability, Admittance Control, Mecanum Base, ATI F/T, SolidWorks]
@@ -13,11 +13,11 @@ related_publications: sharafianardakani2025evaluation
 
 A robotic walker has to feel compliant. The user pushes on the handlebar and the robot should move the way they meant, with no sense of dragging a machine that is resisting them. Admittance control is the standard way to get that behaviour, but it depends on a dynamic model of the robot — and ARNA's dynamics are anything but fixed. Payload changes when a hospital bed is docked to the front, friction changes with the floor, and every user pushes differently. **The question this paper asks is whether replacing the model-based inner loop with one that learns online produces a measurably better walking experience.**
 
-{% include figure.liquid loading="eager" path="assets/img/nac/nac_architecture.png" class="img-fluid rounded z-depth-1" zoomable=true alt="Block diagram of the neuroadaptive admittance controller: force/torque sensor into an admittance model and inverse kinematics, feeding an inner-loop NAC with a neural network approximating the robot dynamics" caption="The controller. Handlebar forces pass through an admittance model and inverse kinematics to produce a reference trajectory; the inner-loop NAC tracks it, using a neural network to approximate ARNA's unmodelled dynamics in real time." %}
+{% include figure.liquid loading="eager" path="assets/img/nac/nac_architecture.jpg" class="img-fluid rounded z-depth-1" zoomable=true alt="Block diagram of the neuroadaptive admittance controller: force/torque sensor into an admittance model and inverse kinematics, feeding an inner-loop NAC with a neural network approximating the robot dynamics" caption="The controller. Handlebar forces pass through an admittance model and inverse kinematics to produce a reference trajectory; the inner-loop NAC tracks it, using a neural network to approximate ARNA's unmodelled dynamics in real time." %}
 
 The outer loop is a conventional admittance model that turns handlebar force into a desired Cartesian velocity, then into wheel references through the Mecanum inverse kinematics. The interesting part is the inner loop. Instead of a model, the **NAC** uses a two-layer perceptron — a 20-element state vector in, fifteen sigmoid hidden units, four wheel torques out — to approximate whatever nonlinear dynamics the robot actually has at that moment. Crucially there is **no offline training phase and no dataset**: the weights adapt continuously while the user walks, following tuning laws derived from a Lyapunov analysis, with an e-modification term that stops the weights growing without bound. On hardware the inner loop runs at 333 Hz against a 125 Hz admittance model, so the controller responds well ahead of the compliance it is shaping.
 
-I built the system in Gazebo first — ARNA's SolidWorks CAD converted to URDF, Mecanum wheels modelled with tuned friction and inertia — which made it possible to tune the controller before risking hardware. Simulated runs covered both an unloaded robot and one dragging a 250 kg hospital bed and a 5 kg IV pole, the realistic worst case for a nursing assistant.
+The model was designed in Gazebo first — ARNA's SolidWorks CAD converted to URDF, Mecanum wheels modelled with tuned friction and inertia — which made it possible to tune the controller before risking hardware. Simulated runs covered both an unloaded robot and one dragging a 250 kg hospital bed and a 5 kg IV pole, the realistic worst case for a nursing assistant.
 
 <div class="row">
   <div class="col-md-7 mt-3 mt-md-0">
