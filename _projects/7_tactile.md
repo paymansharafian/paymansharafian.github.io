@@ -49,6 +49,28 @@ Training data came from **20 participants** walking assisted paths with the robo
 </div>
 <div class="caption">The walking routes, with the staged panic-grip and hand-lifting events marked along each.</div>
 
-The TCN came out ahead — better generalisation to unseen users, and causal by construction, so it runs in real time on the robot rather than in post-processing. Detecting distress from steering dynamics during a complex turn is the hard case, and the deployed system handled it.
+Under subject-wise 5-fold cross-validation — every subject's data confined to a single fold, so no model is ever scored on someone it has seen — the TCN came out ahead:
 
-This manuscript is **under review at _IEEE Transactions on Medical Robotics and Bionics_**. Detailed results are held back here until the paper is through revision.
+| Model   | AUROC           | F1 Score        | Recall          | Precision       |
+| ------- | --------------- | --------------- | --------------- | --------------- |
+| BiLSTM  | 0.83 ± 0.04     | 0.61 ± 0.04     | 0.56 ± 0.05     | 0.69 ± 0.11     |
+| CNN-GRU | 0.86 ± 0.02     | 0.64 ± 0.04     | 0.60 ± 0.08     | **0.73 ± 0.06** |
+| TCN     | **0.87 ± 0.03** | **0.66 ± 0.03** | **0.62 ± 0.05** | 0.72 ± 0.11     |
+
+Recall is the metric that matters here. A missed panic grip is a patient the robot fails to help; a false alarm is an interruption. The TCN wins on recall while holding precision, and its training curves stay stable where the CNN-GRU diverges into overfitting — with only twenty subjects, a recurrent model has enough capacity to memorise individual tremor frequencies and hand sizes instead of learning grip dynamics.
+
+Deployed to the physical robot, the model was exported to ONNX and run **entirely on ARNA's onboard computer** — no cloud round-trip — re-evaluating its 512-sample window on every incoming sample at 122 Hz. Ten previously unseen participants then walked all three paths:
+
+| Path                 | Detection rate | Mean latency |
+| -------------------- | -------------- | ------------ |
+| Figure-8             | 90.0%          | 2.03 s       |
+| U-Path               | 80.0%          | 2.07 s       |
+| **Overall (N = 10)** | **85.0%**      | **2.05 s**   |
+
+{% include figure.liquid loading="lazy" path="assets/img/tactile/tactile_detection_timeline.jpg" class="img-fluid rounded z-depth-1" zoomable=true alt="Real-time event probability trace over a walking session, rising above threshold during each shaded panic grip and hand lift window" caption="Live output during one U-Path session. The model's event probability (blue) sits near baseline through normal walking and jumps above the 0.6 threshold within each shaded event window — two panic grips, then two one-hand lifts." %}
+
+The most interesting result is the one we did not expect. Detection was **better on the curved figure-8 path (90%) than on the straight U-path (80%)**, even though turning is where conventional admittance-controlled walkers fail — asymmetric steering forces get misread as instability. Feeding the model the _rate of change_ of grip rather than grip magnitude alone is what avoids this: a panic grip is a synchronised bilateral squeeze, while steering is asymmetric, and the derivative features separate the two cleanly. The obstacle path, full of rapid pull-backs, held its false-alarm rate below one per minute for the same reason. Path complexity does not degrade detection — a prerequisite for a device meant to work in a real ward, where people are constantly changing direction around furniture.
+
+One limitation is worth stating plainly: every participant so far has been a healthy adult. Whether this robustness carries over to patients is the next thing to establish.
+
+This manuscript is **under review at _IEEE Transactions on Medical Robotics and Bionics_**. Detailed results will be provided after publication.
