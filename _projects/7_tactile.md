@@ -2,13 +2,13 @@
 layout: page
 title: "Tactile Handlebar and Deep Learning for Safe Interaction with a Robot Nursing Assistant"
 description: "A sensorized handlebar that reads grip finger by finger, paired with deep sequence models that flag adverse events — panic grips, one-hand releases — while a patient is walking with ARNA. Under review at IEEE Transactions on Medical Robotics and Bionics."
-img: assets/img/tactile/tactile_handlebar_new.jpg
-importance: 8
+img: assets/img/tactile/tactile_handlebar_thumb.jpg
+importance: 7
 category: work
 tech: [ROS, Python, PyTorch, TCN, Kalman Filter, FSR Array, ATI F/T, Arduino, SLA 3D Printing, PCB Design]
 ---
 
-A robotic walker that reads its user through a single six-axis force/torque sensor knows the _net_ push on the handlebar and nothing else. That is enough to move the robot compliantly, but it is far too coarse for safety: a patient tightening into a panic grip, letting go with one hand, or losing balance produces a distributed change in how their fingers press — and a single-point sensor averages exactly that signal away. **This project asks whether measuring grip at finger resolution lets the robot see a fall coming before it becomes one.**
+A robotic walker that reads its user through a single six-axis force/torque sensor knows the _net_ push on the handlebar and nothing else. That is enough to move the robot compliantly, but it is far too coarse for safety: a patient tightening into a panic grip, letting go with one hand, or losing balance produces a distributed change in how their fingers press — and a single-point sensor averages exactly that signal away. **This project asks whether measuring grip at finger resolution lets the robot see a fall coming before it becomes one.** As first author I led it end to end — the handlebar design and sensor placement, the signal-conditioning hardware, the filtering and deep-learning pipeline, and the deployment and human-subject trials on the robot.
 
 <div class="row">
   <div class="col-md-6 mt-3 mt-md-0">
@@ -20,7 +20,7 @@ A robotic walker that reads its user through a single six-axis force/torque sens
 </div>
 <div class="caption">Before and after. The previous handlebar (left) was a plain bar on a six-axis force/torque sensor. The new design (right) keeps that sensor but adds eight force-sensing resistors — four per handle — inside ergonomic grips on an adjustable frame.</div>
 
-The handlebar carries **eight piezoresistive force sensors, four per handle**, positioned to sit under the thumb, index, middle/ring and pinky contact points. Each one is epoxied into a custom button behind a load-concentrating puck, so grip pressure reaches the sensor evenly instead of as a stress point, and the whole assembly lives inside SLA-printed ergonomic casings on a mild-steel frame — the industrial six-axis sensor stays in place underneath, so the design adds tactile detail without giving up the kinetic measurement the walker controller already depends on.
+The handlebar carries **eight piezoresistive force sensors, four per handle** — FlexiForce A201s — positioned to sit under the thumb, index, middle/ring and pinky contact points. Each one is epoxied into a custom button behind a load-concentrating puck, so grip pressure reaches the sensor evenly instead of as a stress point, and the whole assembly lives inside SLA-printed ergonomic casings on a mild-steel frame — the industrial six-axis sensor stays in place underneath, so the design adds tactile detail without giving up the kinetic measurement the walker controller already depends on.
 
 <div class="row">
   <div class="col-md-6 mt-3 mt-md-0">
@@ -55,22 +55,25 @@ Under subject-wise 5-fold cross-validation — every subject's data confined to 
 | ------- | --------------- | --------------- | --------------- | --------------- |
 | BiLSTM  | 0.83 ± 0.04     | 0.61 ± 0.04     | 0.56 ± 0.05     | 0.69 ± 0.11     |
 | CNN-GRU | 0.86 ± 0.02     | 0.64 ± 0.04     | 0.60 ± 0.08     | **0.73 ± 0.06** |
-| TCN     | **0.87 ± 0.03** | **0.66 ± 0.03** | **0.62 ± 0.05** | 0.72 ± 0.11     |
+| TCN     | **0.87 ± 0.03** | **0.67 ± 0.04** | **0.63 ± 0.06** | 0.72 ± 0.11     |
 
-Recall is the metric that matters here. A missed panic grip is a patient the robot fails to help; a false alarm is an interruption. The TCN wins on recall while holding precision, and its training curves stay stable where the CNN-GRU diverges into overfitting — with only twenty subjects, a recurrent model has enough capacity to memorise individual tremor frequencies and hand sizes instead of learning grip dynamics.
+Recall is the metric that matters here. A missed panic grip is a patient the robot fails to help; a false alarm is an interruption. The TCN wins on recall while holding precision, and its training curves stay stable where the CNN-GRU diverges into overfitting — with only twenty subjects, a recurrent model has enough capacity to memorise individual tremor frequencies and hand sizes instead of learning grip dynamics. Recall in the low 0.6s is not the ceiling it looks like: only 219 of the 1,986 windows contain an event, a roughly 1:9 imbalance that caps what a deliberately conservative classifier can reach.
 
-Deployed to the physical robot, the model was exported to ONNX and run **entirely on ARNA's onboard computer** — no cloud round-trip — re-evaluating its 512-sample window on every incoming sample at 122 Hz. Ten previously unseen participants then walked all three paths:
+Deployed to the physical robot, the model was exported to ONNX and run **entirely on ARNA's onboard computer** — a VersaLogic EPU-4562, no cloud round-trip — re-evaluating its full 512-sample window on every incoming sample, one inference every 8.2 ms. Ten previously unseen participants then walked all three paths:
 
-| Path                 | Detection rate | Mean latency |
-| -------------------- | -------------- | ------------ |
-| Figure-8             | 90.0%          | 2.03 s       |
-| U-Path               | 80.0%          | 2.07 s       |
-| **Overall (N = 10)** | **85.0%**      | **2.05 s**   |
+| Path                 | Detection rate | Mean latency | False alarms  |
+| -------------------- | -------------- | ------------ | ------------- |
+| Figure-8             | 90.0%          | 2.03 s       | 1.64 /min     |
+| U-Path               | 80.0%          | 2.07 s       | 2.19 /min     |
+| Y-Path (no events)   | —              | —            | 0.51 /min     |
+| **Overall (N = 10)** | **85.0%**      | **2.05 s**   | **1.45 /min** |
 
 {% include figure.liquid loading="lazy" path="assets/img/tactile/tactile_detection_timeline.jpg" class="img-fluid rounded z-depth-1" zoomable=true alt="Real-time event probability trace over a walking session, rising above threshold during each shaded panic grip and hand lift window" caption="Live output during one U-Path session. The model's event probability (blue) sits near baseline through normal walking and jumps above the 0.6 threshold within each shaded event window — two panic grips, then two one-hand lifts." %}
 
-The most interesting result is the one we did not expect. Detection was **better on the curved figure-8 path (90%) than on the straight U-path (80%)**, even though turning is where conventional admittance-controlled walkers fail — asymmetric steering forces get misread as instability. Feeding the model the _rate of change_ of grip rather than grip magnitude alone is what avoids this: a panic grip is a synchronised bilateral squeeze, while steering is asymmetric, and the derivative features separate the two cleanly. The obstacle path, full of rapid pull-backs, held its false-alarm rate below one per minute for the same reason. Path complexity does not degrade detection — a prerequisite for a device meant to work in a real ward, where people are constantly changing direction around furniture.
+That is 68 of the 80 staged events caught, and the most interesting part is the one we did not expect. Detection was **better on the curved figure-8 path (90%) than on the straight U-path (80%)**, even though turning is where conventional admittance-controlled walkers fail — asymmetric steering forces get misread as instability. Feeding the model the _rate of change_ of grip rather than grip magnitude alone is what avoids this: a panic grip is a synchronised bilateral squeeze, while steering is asymmetric, and the derivative features separate the two cleanly. The Y-path is the sharpest evidence. It contains the most aggressive manoeuvring of the three — pulling the robot backwards away from an obstacle, which produces large derivatives — and no staged events at all, yet it produced the fewest alarms of any path at 0.51 per minute. Path complexity does not degrade detection, which is a prerequisite for a device meant to work in a real ward where people constantly change direction around furniture.
 
-One limitation is worth stating plainly: every participant so far has been a healthy adult. Whether this robustness carries over to patients is the next thing to establish.
+The false-alarm figure deserves reading carefully rather than at face value. Of the 1.45 alarms per minute overall, 86% are not spurious detections but the decay of the output after a genuine event: the sliding window still contains the event once it has ended, so the probability takes a median 1.87 s to clear. Excluding those tails leaves **0.35 independent alarms per minute — roughly one every three minutes** — mostly during hand repositioning. Tightening the threshold or requiring the probability to persist cuts alarms further at a cost of about a point of detection rate; we kept the sensitive setting for this first validation.
+
+Three things bound the claims. The participants were healthy adults performing scripted events, and the cohort skewed male and White with a mean age of 33.6 — patients with tremor, spasticity, fatigue or grip deficits may produce far weaker signals. The residual false alarms still matter over a long shift and argue for a threshold that adapts to context rather than a fixed one. And the system reads tactile data alone; pairing it with lower-limb kinematics is the obvious way to corroborate an ambiguous grip. This is a proof of concept, not a claim of clinical readiness.
 
 This manuscript is **under review at _IEEE Transactions on Medical Robotics and Bionics_**. Detailed results will be provided after publication.

@@ -3,7 +3,7 @@ layout: page
 title: "Neural Human Intent Estimator for an Adaptive Robotic Nursing Assistant"
 description: "IEEE CASE 2024 paper on HIE-NAC, a model-free neural estimator that infers where a user intends to walk from handlebar forces alone and feeds a neuroadaptive controller. Lyapunov-proven stability, validated with 10 participants across three guided paths."
 img: assets/img/intent/intent_arna_labeled.jpg
-importance: 7
+importance: 8
 category: work
 tech: [ROS1, C++, Neural Networks, Adaptive Control, Lyapunov Stability, pHRI, Mecanum Base, ATI F/T, R]
 paper_url: https://doi.org/10.1109/CASE59546.2024.10711531
