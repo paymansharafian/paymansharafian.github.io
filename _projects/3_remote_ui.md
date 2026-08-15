@@ -1,11 +1,53 @@
 ---
 layout: page
 title: "ARNA Remote User Interface Design"
-description: "Browser-based remote control interface for ARNA. A Next.js frontend streams low-latency video and multi-channel robot state over Cloudflare-tunneled WebSocket/rosbridge connections, letting operators drive the robot from any location."
-img:
+description: "A browser-based teleoperation front end for ARNA — no client software, no VPN. A Next.js GUI reaches the robot through an authenticated Cloudflare tunnel on three isolated WebSocket channels, and the same connection doubles as the sensor that tells the safety layers how good the link is."
+img: assets/img/teleop/teleop_thumb_ui.jpg
 importance: 4
 category: work
-tech: [ROS1, Next.js, WebSockets, rosbridge, Cloudflare, RTSP, Python, JavaScript]
+tech: [ROS1, Next.js, JavaScript, WebSockets, rosbridge, Cloudflare Tunnel, Python, Image Compression]
 ---
 
-Architected a distributed teleoperation frontend combining ROS1 with a Next.js web application, enabling operators to control ARNA from a browser over Cloudflare-tunneled WebSocket connections with multi-channel rosbridge streaming and low-latency video.
+If a nurse is going to operate a robot from another building — or another state — the interface cannot ask them to install anything. It has to be a URL they open, log into, and drive. That constraint drives the whole design: **everything the operator needs travels over ordinary web protocols, and the robot has no inbound port open to the internet at all.**
+
+{% include figure.liquid loading="eager" path="assets/img/teleop/teleop_ui.jpg" class="img-fluid rounded z-depth-1" zoomable=true alt="The ARNA control interface in a browser: arm and base camera views, a Run Pick button, Home button, gripper slider, two joystick pads and three rotation sliders" caption="The operator's whole world. Arm and base camera feeds on the left with the one-click pick trigger beneath them, base and arm joysticks on the right, gripper slider and wrist rotation controls. Everything shown here crosses the public internet." %}
+
+The operator opens a Next.js application in a normal browser and authenticates by identity — single sign-on or an emailed code — rather than by shared credentials. From there, a **Cloudflare tunnel** carries the session. The important property is directional: the lab runs an outbound tunnel client, so there is no port forwarding, no inbound firewall exception, and no VPN for the operator to configure.
+
+{% include figure.liquid loading="lazy" path="assets/img/teleop/teleop_network_arch.jpg" class="img-fluid rounded z-depth-1" zoomable=true alt="Network diagram showing the remote operator PC connecting through Cloudflare to the lab host and the ARNA robot" caption="Remote site to lab. The tunnel client dials out from the lab, so the robot never exposes an inbound port. Control and the two camera feeds ride separate WebSocket channels rather than sharing one." %}
+
+## Three channels, not one
+
+The first version put everything — arm commands, service calls and both camera streams — through a single rosbridge WebSocket. It worked, and it felt laggy whenever video was flowing. The cause was **head-of-line blocking**: under load, a 30 KB camera frame arriving just ahead of a 50-byte joystick command delays that command by the full frame transmission time. The control path was fine; it was simply stuck behind bulk traffic in the same queue.
+
+The fix was to stop sharing the queue. Three independent rosbridge instances now run, isolated at the OS socket level:
+
+| Channel       | Port | Traffic                                  |
+| ------------- | ---- | ---------------------------------------- |
+| Control plane | 9090 | Joystick, services, gripper, pick topics |
+| Base camera   | 9091 | Compressed base RGB stream               |
+| Arm camera    | 9092 | Compressed wrist stream                  |
+
+The browser opens three separate clients, so camera bursts on 9091 and 9092 physically cannot block the TCP send queue of 9090. The control channel always has bandwidth. Video and control now degrade independently, which is the right failure mode — a stuttering picture is recoverable, a stalled stop command is not.
+
+## Making the video small enough to be honest
+
+Raw frames were never going to work over a tunnel. A single uncompressed 640 × 480 image is around 900 KB; at even 5 FPS that is a ~36 Mbps stream, beyond both the tunnel and rosbridge's own serialization.
+
+Compression was applied at both ends of the wire. At the source, the wrist frame is halved in each dimension and JPEG-encoded at quality 30, taking a ~900 KB frame down to 15–25 KB, while the base camera compresses in the driver at quality 25 with the depth, IR and depth-registration pipelines switched off entirely — nothing but RGB is needed for the operator's view. In the browser, subscriptions request **CBOR** rather than rosbridge's default base64, which otherwise adds 33% to every frame for nothing, and the raw bytes are wrapped in a Blob and handed to `URL.createObjectURL`, keeping a base64 decode out of the render path on every frame. Frame rates are throttled per stream — the wrist camera at 30 FPS because it is the one you grasp with, the base camera at 12.5 FPS because it is the one you steer with. Together that is roughly a **35–40× reduction in per-frame data volume**.
+
+On the lab side, a Legion host runs the ROS master, the rosbridge instances and the compression node; the robot runs its Blackbird base controller on the local network.
+
+## The connection is also a sensor
+
+The part of this design worth keeping in any future version is that the transport does double duty. The browser pings over the control WebSocket every 100 ms, and those round-trip times are published into ROS as a first-class topic.
+
+That single stream is what the entire [safety architecture]({{ '/projects/2_mpc_cbf/' | relative_url }}) runs on: it classifies the link into four states, and from there the watchdog widens the arm and base safety margins, stretches the predictive horizon, and reduces how hard the filters chase the operator's command. The interface is not just a client of the safety system — it is the instrument the safety system measures the world with. Measuring the link at the same place the commands are issued means the number reflects the path the commands actually take, rather than a synthetic probe along some other route.
+
+{% include figure.liquid loading="lazy" path="assets/img/teleop/teleop_course.jpg" class="img-fluid rounded z-depth-1" zoomable=true alt="Laboratory floor marked with an L-shaped taped course and a labelled start and end point" caption="The evaluation course: drive out along the L, pick up the bottle, return and release — the whole task performed by operators who never saw the robot in person." %}
+
+## Driven from across the country
+
+The interface has been used by **30 operators**, all of them genuinely remote — some elsewhere in Louisville, some in other cities around the country — driving the robot along the taped course above. Every command in every trial crossed the public internet, so the latency the safety layers compensate for is real rather than simulated. That study is currently being analysed, and its results are not reported here yet.
+
+Related pages: the [five-layer safety architecture]({{ '/projects/2_mpc_cbf/' | relative_url }}) that filters every command this interface sends, and the [one-click semi-autonomous pick]({{ '/projects/4_pick_place/' | relative_url }}) reached from the button under the camera view.

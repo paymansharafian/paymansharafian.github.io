@@ -2,7 +2,7 @@
 layout: page
 title: "Adaptive User Interface With Parallel Neural Networks for Robot Teleoperation"
 description: "First-author IEEE Robotics and Automation Letters paper introducing PNNUI, a teleoperation interface built from two neural networks running in parallel — one trained offline by a genetic algorithm to minimize task time, one trained online to suppress motion jerk. Validated with 20 human subjects."
-img: assets/img/pnnui/pnnui_experiment_path.jpg
+img: assets/img/pnnui/pnnui_thumb.jpg
 importance: 2
 category: work
 tech: [ROS Melodic, Python, PyGAD, Genetic Algorithms, Neural Networks, SGD, Gazebo, RViz, AMCL, R, Turtlebot2]
