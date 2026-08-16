@@ -83,6 +83,25 @@ Before any of this was placed in front of an operator, every layer was tested in
 
 **Layer 1** was driven straight at all six workspace faces, ten runs each: **zero boundary violations in sixty runs**. Filtered jerk cost came out roughly 200–440× lower than the raw operator input, turning abrupt joystick commands into gentle motion. Solve time grows with horizon, from 2.7 ms at N = 10 to a 59.6 ms mean at N = 25. The fourth panel is the one worth dwelling on, because it is a _cross-layer_ result: the horizon actually selected tracks the delay-based prediction exactly, showing Layer 3 driving Layer 1 end to end rather than two components that merely pass their own tests.
 
+The same difference is easier to see than to read off a log scale:
+
+<div class="row">
+  <div class="col-md-6 mt-3 mt-md-0">
+    {% include video.liquid path="assets/video/mpc_arm_jerk_off.mp4" class="img-fluid rounded z-depth-1" controls=true muted=true loop=true poster="/assets/img/teleop/mpc_arm_jerk_off_poster.jpg" %}
+  </div>
+  <div class="col-md-6 mt-3 mt-md-0">
+    {% include video.liquid path="assets/video/mpc_arm_jerk_on.mp4" class="img-fluid rounded z-depth-1" controls=true muted=true loop=true poster="/assets/img/teleop/mpc_arm_jerk_on_poster.jpg" %}
+  </div>
+</div>
+<div class="caption">The arm under the same abrupt operator input. Left, with the filter disabled, the command reaches the hardware unaltered and the arm executes it as a jolt. Right, with MPC-CBF active, the jerk term in the cost reshapes the same input into a smooth, continuous move.</div>
+
+<div class="row justify-content-center">
+  <div class="col-md-8 mt-3 mt-md-0">
+    {% include video.liquid path="assets/video/mpc_arm_workspace.mp4" class="img-fluid rounded z-depth-1" controls=true muted=true loop=true poster="/assets/img/teleop/mpc_arm_workspace_poster.jpg" %}
+  </div>
+</div>
+<div class="caption">The workspace box enforced on hardware. The operator drives the end-effector straight at a face of the box; the filter decelerates it onto the boundary and holds it there instead of allowing it through.</div>
+
 <div class="row">
   <div class="col-md-6 mt-3 mt-md-0">
     {% include figure.liquid loading="lazy" path="assets/img/teleop/teleop_base_headon.jpg" class="img-fluid rounded z-depth-1" zoomable=true alt="Distance-to-obstacle curves for four head-on approach speeds, each decelerating smoothly to a stable stand-off" %}
@@ -94,6 +113,23 @@ Before any of this was placed in front of an operator, every layer was tested in
 <div class="caption">Layer 2 driving at an obstacle. Left: four head-on speeds. Right: three approach angles at the fastest speed. The bench runs shown used a more conservative 0.5 m safety distance and 2.0 m activation than the deployed configuration.</div>
 
 **Layer 2** braked predictively at every speed and angle tested, with zero margin violations. Two details show that it plans rather than reacts. The stand-off _grows with speed_ — about 0.58 m at 0.05 m/s, about 1.0 m at the fastest approaches — because a longer effective lookahead buys room earlier, precisely when it is needed. And oblique approaches stop **earlier** than head-on ones, around 1.19 m against 1.0 m, because at ±45° the forward cone catches the obstacle across several sectors at once. The +45° and −45° curves lie almost on top of each other, confirming no left–right bias in the sector logic.
+
+<div class="row justify-content-center">
+  <div class="col-md-5 mt-3 mt-md-0">
+    {% include video.liquid path="assets/video/mpc_base_obstacle.mp4" class="img-fluid rounded z-depth-1" controls=true muted=true loop=true poster="/assets/img/teleop/mpc_base_obstacle_poster.jpg" %}
+  </div>
+</div>
+<div class="caption">Predictive obstacle avoidance on the base. The operator keeps commanding forward motion; the filter plans the deceleration ahead of the obstacle and settles the robot at its stand-off distance rather than braking at the last moment.</div>
+
+<div class="row">
+  <div class="col-md-6 mt-3 mt-md-0">
+    {% include video.liquid path="assets/video/mpc_base_jerk_off.mp4" class="img-fluid rounded z-depth-1" controls=true muted=true loop=true poster="/assets/img/teleop/mpc_base_jerk_off_poster.jpg" %}
+  </div>
+  <div class="col-md-6 mt-3 mt-md-0">
+    {% include video.liquid path="assets/video/mpc_base_jerk_on.mp4" class="img-fluid rounded z-depth-1" controls=true muted=true loop=true poster="/assets/img/teleop/mpc_base_jerk_on_poster.jpg" %}
+  </div>
+</div>
+<div class="caption">The same comparison on the base. Left, unfiltered, the operator's speed changes pass straight to the wheels. Right, with the filter on, the receding-horizon solution smooths them into a continuous motion profile — the difference a user feels most when walking beside the robot.</div>
 
 {% include figure.liquid loading="lazy" path="assets/img/teleop/teleop_watchdog.jpg" class="img-fluid rounded z-depth-1" zoomable=true alt="Four stacked traces showing injected network state, resulting safety mode, lambda network, and epsilon margin multipliers moving together" caption="Layer 3 through a full mode lifecycle. Margins and λ move in lockstep with the mode, and the intended asymmetry is visible — degradation applies immediately, recovery waits out its dwell." %}
 
