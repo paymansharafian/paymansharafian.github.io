@@ -9,11 +9,20 @@ paper_status: "In progress: Scheduled for IEEE Transactions on Robotics"
 tech: [ROS1, Next.js, JavaScript, WebSockets, rosbridge, Cloudflare Tunnel, Python, Image Compression]
 ---
 
-If a nurse is going to operate a robot from another building — or another state — the interface cannot ask them to install anything. It has to be a URL they open, log into, and drive. That constraint drives the whole design: **everything the operator needs travels over ordinary web protocols, and the robot has no inbound port open to the internet at all.**
+Remote operation is only practical if the operator can begin immediately. A nurse working from another building — or another state — cannot reasonably be asked to install client software, obtain a VPN profile, or wait for a firewall exception. The interface therefore has to be a URL they open, authenticate against, and drive. That constraint shapes the entire design: **everything the operator needs travels over ordinary web protocols, and the robot exposes no inbound port to the internet.**
 
-{% include figure.liquid loading="eager" path="assets/img/teleop/teleop_ui.jpg" class="img-fluid rounded z-depth-1" zoomable=true alt="The ARNA control interface in a browser: arm and base camera views, a Run Pick button, Home button, gripper slider, two joystick pads and three rotation sliders" caption="The operator's whole world. Arm and base camera feeds on the left with the one-click pick trigger beneath them, base and arm joysticks on the right, gripper slider and wrist rotation controls. Everything shown here crosses the public internet." %}
+<div class="row justify-content-center">
+  <div class="col-md-8 mt-3 mt-md-0">
+    {% include figure.liquid loading="eager" path="assets/img/teleop/teleop_ui_full.jpg" class="img-fluid rounded z-depth-1" zoomable=true alt="The ARNA control interface: arm and base camera views with a Run Pick button, speed control, position control with plane tabs and a Z-axis slider, gripper control, base joysticks and wrist rotation sliders" %}
+  </div>
+</div>
+<div class="caption">The operator's whole world: camera feeds and the one-click pick trigger, arm position control with selectable plane, base driving joysticks, and gripper and wrist controls. Everything shown here crosses the public internet.</div>
 
 The operator opens a Next.js application in a normal browser and authenticates by identity — single sign-on or an emailed code — rather than by shared credentials. From there, a **Cloudflare tunnel** carries the session. The important property is directional: the lab runs an outbound tunnel client, so there is no port forwarding, no inbound firewall exception, and no VPN for the operator to configure.
+
+{% include video.liquid path="assets/video/gui_overview.mp4" class="img-fluid rounded z-depth-1" controls=true muted=true poster="/assets/img/teleop/gui_overview_poster.jpg" %}
+
+<div class="caption">A full session from the operator's side: identity authentication through Cloudflare Access, then live camera feeds, base driving, arm control and the gripper — all over the tunnel.</div>
 
 {% include figure.liquid loading="lazy" path="assets/img/teleop/teleop_network_arch.jpg" class="img-fluid rounded z-depth-1" zoomable=true alt="Network diagram showing the remote operator PC connecting through Cloudflare to the lab host and the ARNA robot" caption="Remote site to lab. The tunnel client dials out from the lab, so the robot never exposes an inbound port. Control and the two camera feeds ride separate WebSocket channels rather than sharing one." %}
 
@@ -35,7 +44,7 @@ The browser opens three separate clients, so camera bursts on 9091 and 9092 phys
 
 Raw frames are not viable over a tunnel. A single uncompressed 640 × 480 image is around 900 KB; at even 5 FPS that is a ~36 Mbps stream, beyond both the tunnel and rosbridge's own serialization.
 
-Compression is applied at both ends of the wire. At the source, the wrist frame is halved in each dimension and JPEG-encoded at quality 30, taking a ~900 KB frame down to 15–25 KB, while the base camera compresses in the driver at quality 25 with the depth, IR and depth-registration pipelines switched off entirely — nothing but RGB is needed for the operator's view. In the browser, subscriptions request **CBOR** rather than rosbridge's default base64, which otherwise adds 33% to every frame for nothing, and the raw bytes are wrapped in a Blob and handed to `URL.createObjectURL`, keeping a base64 decode out of the render path on every frame. Frame rates are throttled per stream — the wrist camera at 30 FPS because it is the one you grasp with, the base camera at 12.5 FPS because it is the one you steer with. Together that is roughly a **35–40× reduction in per-frame data volume**.
+Compression is applied at both ends of the wire. At the source, the wrist frame is halved in each dimension and JPEG-encoded at quality 30, taking a ~900 KB frame down to 15–25 KB, while the base camera compresses in the driver at quality 25 with the depth, IR and depth-registration pipelines switched off entirely — nothing but RGB is needed for the operator's view. In the browser, subscriptions request **CBOR** rather than rosbridge's default base64, which would otherwise add 33% to every frame, and the raw bytes are wrapped in a Blob and handed to `URL.createObjectURL`, keeping a base64 decode out of the per-frame render path. Frame rates are throttled per stream according to their role — the wrist camera at 30 FPS as the grasping view, the base camera at 12.5 FPS as the driving view. Together these measures give roughly a **35–40× reduction in per-frame data volume**.
 
 On the lab side, a Legion host runs the ROS master, the rosbridge instances and the compression node; the robot runs its Blackbird base controller on the local network.
 
@@ -43,13 +52,11 @@ On the lab side, a Legion host runs the ROS master, the rosbridge instances and 
 
 The transport does double duty. The browser pings over the control WebSocket every 100 ms, and those round-trip times are published into ROS as a first-class topic.
 
-That single stream is what the entire [safety architecture]({{ '/projects/2_mpc_cbf/' | relative_url }}) runs on: it classifies the link into four states, and from there the watchdog widens the arm and base safety margins, stretches the predictive horizon, and reduces how hard the filters chase the operator's command. The interface is not just a client of the safety system — it is the instrument the safety system measures the world with. Measuring the link at the same place the commands are issued means the number reflects the path the commands actually take, rather than a synthetic probe along some other route.
-
-{% include figure.liquid loading="lazy" path="assets/img/teleop/teleop_course.jpg" class="img-fluid rounded z-depth-1" zoomable=true alt="Laboratory floor marked with an L-shaped taped course and a labelled start and end point" caption="The evaluation course: drive out along the L, pick up the bottle, return and release — the whole task performed by operators who never saw the robot in person." %}
+That single stream is what the entire [safety architecture]({{ '/projects/2_mpc_cbf/' | relative_url }}) runs on: it classifies the connection into four states, and from there the watchdog widens the arm and base safety margins, stretches the predictive horizon, and reduces how closely the filters track the operator's command. The interface is therefore not merely a client of the safety system but the instrument it measures with — and because the measurement is taken on the same socket that carries the commands, it reflects the path those commands actually travel rather than a synthetic probe over a different route.
 
 ## Driven from across the country
 
-The interface has been used by **30 operators**, all of them genuinely remote — some elsewhere in Louisville, some in other cities around the country — driving the robot along the taped course above. Every command in every trial crossed the public internet, so the latency the safety layers compensate for is real rather than simulated.
+The interface has been used by **30 operators**, all of them genuinely remote — some elsewhere in Louisville, some in other cities around the country. Every command in every trial crossed the public internet, so the latency the safety layers compensate for is real rather than simulated.
 
 Related pages: the [five-layer safety architecture]({{ '/projects/2_mpc_cbf/' | relative_url }}) that filters every command this interface sends, and the [one-click semi-autonomous pick]({{ '/projects/4_pick_place/' | relative_url }}) reached from the button under the camera view.
 
