@@ -366,6 +366,29 @@ ul.task-list input[type="checkbox"] {
   }
 }
 
+// Responsive video embeds (YouTube and similar). The theme ships Bootstrap 4,
+// which has no .ratio utility, so the aspect ratio is held with padding.
+.video-embed {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%; // 16:9
+  overflow: hidden;
+  border-radius: 6px;
+
+  &.video-embed-vertical {
+    padding-bottom: 177.78%; // 9:16, for Shorts
+  }
+
+  iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+}
+
 // Non-clickable counterpart to .project-link, for work that has no link yet
 .project-status {
   color: var(--global-text-color-light);

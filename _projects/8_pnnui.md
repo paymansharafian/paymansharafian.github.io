@@ -67,11 +67,21 @@ A repeated measures design was used across four conditions: PNN+NOBS, FCNN+NOBS,
 
 Linear mixed-effects models with a random intercept were used, because the data were collected in a repeated measures experiment design, with the random intercept over subject ID accounting for correlation between observations from the same subject. Analysis used the lme4, lmerTest and multcomp libraries in R.
 
-{% include figure.liquid loading="lazy" path="assets/img/pnnui/pnnui_experiment_path.jpg" class="img-fluid rounded z-depth-1" zoomable=true alt="Laboratory test path: a taped rectangular path marked A and B with an obstacle, driven by the Turtlebot2" caption="Experiment path, the same for both the PNN and FCNN tasks." %}
+<div style="text-align: center; margin: 1.25rem auto;">
+{% include figure.liquid loading="lazy" path="assets/img/pnnui/pnnui_experiment_path.jpg" class="img-fluid rounded z-depth-1" zoomable=true alt="Laboratory test path: a taped rectangular path marked A and B with an obstacle, driven by the Turtlebot2" caption="Experiment path, the same for both the PNN and FCNN tasks." max-width="700px" %}
+</div>
 
 <div class="row justify-content-center">
-  <div class="col-md-6 mt-3 mt-md-0">
-    {% include video.liquid path="assets/video/pnnui_demo.mp4" class="img-fluid rounded z-depth-1" controls=true muted=true poster="/assets/img/pnnui/pnnui_demo_poster.jpg" %}
+  <div class="col-md-5 mt-3 mt-md-0">
+    <div class="video-embed video-embed-vertical z-depth-1">
+      <iframe
+        src="https://www.youtube.com/embed/5VMUEUGS8ds"
+        title="PNNUI trial — driving the Turtlebot2 through the learned interface"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen
+      ></iframe>
+    </div>
   </div>
 </div>
 <div class="caption">A trial in progress — an operator drives the Turtlebot2 around the path through the learned interface.</div>

@@ -2,12 +2,13 @@
 layout: page
 title: "Neural Human Intent Estimator for an Adaptive Robotic Nursing Assistant"
 description: "IEEE CASE 2024 paper on HIE-NAC, a model-free neural estimator that infers where a user intends to walk from handlebar forces alone and feeds a neuroadaptive controller. Lyapunov-proven stability, validated with 10 participants across three guided paths."
-img: assets/img/intent/intent_arna_labeled.jpg
+img: assets/img/intent/intent_architecture.png
 importance: 8
 category: work
 tech: [ROS1, C++, Neural Networks, Adaptive Control, Lyapunov Stability, pHRI, Mecanum Base, ATI F/T, R]
 paper_url: https://doi.org/10.1109/CASE59546.2024.10711531
 paper_venue: "IEEE CASE 2024"
+video_url: https://youtu.be/SPxjS806RLY
 related_publications: trombley2024neural
 ---
 
@@ -19,7 +20,7 @@ The answer is **HIE-NAC**, a cascaded scheme with a human intent estimator in th
 
 {% include figure.liquid loading="lazy" path="assets/img/intent/intent_architecture.png" class="img-fluid rounded z-depth-1" zoomable=true alt="HIE-NAC block diagram showing NN1 estimating human gains, NN2 estimating the reference trajectory, and the inner-loop NAC producing wheel torques" caption="The HIE-NAC architecture. NN1 estimates the user's gain matrices, NN2 converts them into a reference pose and velocity, and the inner-loop NAC turns that reference into wheel torques." %}
 
-Ten participants with no prior experience of the robot guided ARNA along three reference paths — a 5 m straight line, a 3 m × 3 m square, and a straight run with a chair to steer around — under both HIE-NAC and a tuned conventional admittance baseline, in a repeated-measures design. We logged reference and actual velocities from the wheel encoders, derived motion jerk, and fitted mixed-effects regression models. As third author I supported the experiments and data collection, contributed to the statistical analysis and the writing, and presented the work at IEEE CASE 2024 in Bari, Italy.
+Ten participants with no prior experience of the robot guided ARNA along three reference paths — a 5 m straight line, a 3 m × 3 m square, and a straight run with a chair to steer around — under both HIE-NAC and a tuned conventional admittance baseline, in a repeated-measures design. We logged reference and actual velocities from the wheel encoders, derived motion jerk, and fitted mixed-effects regression models. As third author I supported the experiments and data collection, contributed to the statistical analysis and the writing, and [presented the work](https://youtu.be/SPxjS806RLY) at IEEE CASE 2024 in Bari, Italy.
 
 {% include figure.liquid loading="lazy" path="assets/img/intent/intent_floor_paths.jpg" class="img-fluid rounded z-depth-1" zoomable=true alt="Laboratory floor showing the taped straight-line path, square path, and obstacle position used in the experiments" caption="The three evaluation paths taped on the lab floor: a 5 m straight line, a 3 m square, and a straight run with an obstacle to navigate around." %}
 
