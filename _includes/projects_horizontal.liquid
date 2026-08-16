@@ -26,6 +26,9 @@
           >[Full Paper{% if project.paper_venue %}: {{ project.paper_venue }}{% endif %}]</a
         >
       {% endif %}
+      {% if project.paper_status %}
+        <span class="project-status">[{{ project.paper_status }}]</span>
+      {% endif %}
       {% if project.video_url %}
         <a href="{{ project.video_url }}" target="_blank" rel="noopener" class="project-link">[Video]</a>
       {% endif %}

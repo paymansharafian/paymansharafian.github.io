@@ -5,10 +5,11 @@ description: "One click on one pixel, and the robot does the rest — FastSAM tu
 img: assets/img/teleop/teleop_thumb_pick.jpg
 importance: 5
 category: work
+paper_status: "In progress: Scheduled for IEEE Transactions on Robotics"
 tech: [ROS1, Python, PyTorch, FastSAM, Contact-GraspNet, PointNet++, Kinova Gen3, RGBD, TF2, CUDA]
 ---
 
-Teleoperating a 7-DOF arm through a compressed video feed with a quarter-second of lag is miserable. The operator has no depth cues, no force feedback, and every correction they make arrives late. Asking them to servo a gripper onto a bottle that way is asking for a long, frustrating, error-prone approach to a task the robot could do itself in a few seconds. **So the operator's entire contribution is reduced to one click on one pixel** — which object — and everything after that is autonomous.
+Teleoperating a 7-DOF arm through a compressed video feed with a quarter-second of lag is slow and error-prone. The operator has no depth cues, no force feedback, and every correction arrives late. Manually servoing a gripper onto a bottle under those conditions is a long, frustrating approach to a task the robot can complete on its own in seconds. **The operator's contribution is therefore reduced to a single click on a single pixel** — which object — with everything after that autonomous.
 
 {% include figure.liquid loading="eager" path="assets/img/teleop/robot_41.jpg" class="img-fluid rounded z-depth-1" zoomable=true alt="ARNA's Kinova Gen3 arm extended toward a workbench in the lab" caption="ARNA's Kinova Gen3 with the wrist-mounted RGBD camera that both shows the operator the scene and supplies the depth the grasp network runs on." %}
 
@@ -22,9 +23,9 @@ The click arrives as a point in the wrist camera image, and four stages turn it 
 
 **Contact-GraspNet** proposes the grasps. The masked region plus registered depth and camera intrinsics is unprojected into a segmented point cloud, and a PointNet++ encoder with a grasp-contact decoder returns a set of full SE(3) poses with confidence scores.
 
-Replacing what came before it is the substantive change here. The earlier pipeline fitted a **cylinder** to the depth image and commanded a pre-computed approach angle from it. That works for bottles, cans and cups, and fails completely on anything flat, irregular or asymmetric — boxes, bags, tape dispensers, tools — with no grasp-quality score to tell you it was about to fail. It produced one deterministic answer whether or not that answer was any good. The learned model is shape-agnostic: trained across thousands of object categories, it proposes ranked grasps for convex and concave geometry alike.
+A learned, shape-agnostic model matters here because the objects do not share a geometry. Trained across thousands of object categories, it returns ranked candidates for convex and concave shapes alike — bottles, boxes, bags and tools — where no single geometric prior would fit, and it attaches a confidence score to each rather than producing one answer regardless of quality.
 
-Getting it onto the robot took some care, because the network was trained for a Panda gripper and runs on a 4 GB laptop GPU. The gripper mismatch is geometric and correctable — the Panda's fingertips sit about 85 mm ahead of its wrist and the Kinova Robotiq's are shorter, so the predicted wrist position is translated 90 mm forward along the grasp approach axis. The memory constraint needed more: inference is cropped to a bounding region around the clicked object rather than run over the full scene, which cuts input size by roughly 10× for small objects; gradients are disabled; and the model is warm-loaded once at node startup so weights stay resident across every pick instead of being allocated and freed each time, which is what fragments a small VRAM budget until it fails. The original full-scene implementation would not fit on this hardware at all.
+Deploying it required two adaptations. The network was trained for a Panda gripper whose fingertips sit about 85 mm ahead of the wrist, while the Kinova Robotiq's are shorter, so the predicted wrist position is translated 90 mm forward along the grasp approach axis. It also has to run on a 4 GB laptop GPU: inference is cropped to a bounding region around the clicked object rather than the full scene, cutting input size by roughly 10× for small objects, gradients are disabled, and the model is warm-loaded once at node startup so weights stay resident across every pick instead of being allocated and freed each time — repeated allocation is what fragments a small VRAM budget until it fails.
 
 ## Choosing a grasp, and committing to it
 
@@ -32,7 +33,7 @@ Contact-GraspNet returns many candidates and some are unusable: it will happily 
 
 The surviving grasps are then re-ranked **by how top-down they are, not by the network's confidence**. That is a deliberate substitution. A high-scoring grasp is one the network believes will hold; a top-down grasp is one this arm, at this height, at table level, can actually reach. Reachability is the binding constraint in practice, so it is what the sort key measures.
 
-Execution is then **one-shot**: the pipeline commits to the single best candidate and does not fall through to the next one on failure. That sounds unnecessarily brittle and is the opposite — when the best grasp is out of reach, the lower-ranked ones almost always are too, so cycling through them mostly produces a slow sequence of failures instead of a fast one. Because the camera is on the wrist, the recovery that actually works is to move the robot: the arm returns home, and the operator drives a little closer and clicks again from a better viewpoint.
+Execution is then **one-shot**: the pipeline commits to the single best candidate and does not fall through to the next on failure. When the best grasp is out of reach, the lower-ranked ones almost always are too, so cycling through them yields a slow sequence of failures rather than a fast one. Because the camera is on the wrist, the effective recovery is to move the robot — the arm returns home and the operator drives a little closer and clicks again from a better viewpoint.
 
 ## Looking again before committing
 
@@ -67,4 +68,4 @@ The resolution is that **Layer 1 stands down for the duration of the pick** — 
 
 ---
 
-This pipeline is part of a larger remote-teleoperation system currently being prepared for publication. It has been exercised by 30 remote operators as the autonomy condition of a user study whose analysis is still being finalised, so no results from it are reported here yet.
+This pipeline is part of a larger remote-teleoperation system being prepared for submission to **IEEE Transactions on Robotics**. It has been exercised by 30 remote operators as the autonomy condition of a user study, and those results will be added here after publication.

@@ -340,11 +340,13 @@ ul.task-list input[type="checkbox"] {
 .project-tag {
   background: rgba(0, 0, 0, 0.3);
   color: #ffffff;
-  border: 2px solid #00BCD4;
+  border: 2px solid #00bcd4;
   padding: 2px 8px;
   font-size: 0.75rem;
   border-radius: 4px;
-  box-shadow: 0 0 8px rgba(0, 188, 212, 0.4), inset 0 0 8px rgba(0, 188, 212, 0.08);
+  box-shadow:
+    0 0 8px rgba(0, 188, 212, 0.4),
+    inset 0 0 8px rgba(0, 188, 212, 0.08);
   font-weight: 600;
 }
 
@@ -362,6 +364,13 @@ ul.task-list input[type="checkbox"] {
     text-decoration: underline;
     color: #79baff;
   }
+}
+
+// Non-clickable counterpart to .project-link, for work that has no link yet
+.project-status {
+  color: var(--global-text-color-light);
+  font-size: 0.875rem;
+  font-style: italic;
 }
 
 @media (max-width: 640px) {
