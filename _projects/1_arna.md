@@ -83,7 +83,7 @@ tech: [ROS1, Python, C++, Kinova Gen3, Mecanum Base, LiDAR, ATI F/T, EtherCAT, J
     <p>Nurses or patients can control ARNA remotely from any location safely. The system provides semi-autonomous grasping assistance and network-aware safety guarantees. This feature reduces the physical strain on healthcare professionals.</p>
     <div class="arna-scenario-links">
       <a href="{{ '/projects/2_mpc_cbf/' | relative_url }}">Network-Aware MPC-CBF for Safe Remote Teleoperation of ARNA</a>
-      <a href="{{ '/projects/3_remote_ui/' | relative_url }}">ARNA Remote User Interface Design</a>
+      <a href="{{ '/projects/3_remote_ui/' | relative_url }}">Remote Teleoperation Front-End Design with Secure Network Transport</a>
       <a href="{{ '/projects/4_pick_place/' | relative_url }}">ARNA Semi-Autonomous Pick Place</a>
     </div>
   </div>

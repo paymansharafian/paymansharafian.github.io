@@ -1,7 +1,7 @@
 ---
 layout: page
-title: "ARNA Remote User Interface Design"
-description: "A browser-based teleoperation front end for ARNA — no client software, no VPN. A Next.js GUI reaches the robot through an authenticated Cloudflare tunnel on three isolated WebSocket channels, and the same connection doubles as the sensor that tells the safety layers how good the link is."
+title: "Remote Teleoperation Front-End Design with Secure Network Transport"
+description: "A browser-based teleoperation front end for ARNA — no client software, no VPN. A Next.js GUI reaches the robot through an authenticated Cloudflare tunnel on three isolated WebSocket channels, and the same connection is measured continuously to tell the safety layers how much delay to expect."
 img: assets/img/teleop/teleop_thumb_ui.jpg
 importance: 4
 category: work
@@ -48,11 +48,11 @@ Compression is applied at both ends of the wire. At the source, the wrist frame 
 
 On the lab side, a Legion host runs the ROS master, the rosbridge instances and the compression node; the robot runs its Blackbird base controller on the local network.
 
-## The connection is also a sensor
+## Measuring the connection where the commands travel
 
 The transport does double duty. The browser pings over the control WebSocket every 100 ms, and those round-trip times are published into ROS as a first-class topic.
 
-That single stream is what the entire [safety architecture]({{ '/projects/2_mpc_cbf/' | relative_url }}) runs on: it classifies the connection into four states, and from there the watchdog widens the arm and base safety margins, stretches the predictive horizon, and reduces how closely the filters track the operator's command. The interface is therefore not merely a client of the safety system but the instrument it measures with — and because the measurement is taken on the same socket that carries the commands, it reflects the path those commands actually travel rather than a synthetic probe over a different route.
+That single stream is what the entire [safety architecture]({{ '/projects/2_mpc_cbf/' | relative_url }}) runs on: it classifies the connection into four states, and from there the watchdog widens the arm and base safety margins, stretches the predictive horizon, and reduces how closely the filters track the operator's command. The interface is therefore not merely a client of the safety system but the source of the measurement it depends on — and because that measurement is taken on the same socket that carries the commands, it reflects the delay those commands actually experience rather than a synthetic probe over a different route.
 
 ## Driven from across the country
 
