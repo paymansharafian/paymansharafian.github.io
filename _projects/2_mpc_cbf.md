@@ -131,7 +131,9 @@ The same difference is easier to see than to read off a log scale:
 </div>
 <div class="caption">The same comparison on the base. Left, unfiltered, the operator's speed changes pass straight to the wheels. Right, with the filter on, the receding-horizon solution smooths them into a continuous motion profile — the difference a user feels most when walking beside the robot.</div>
 
-{% include figure.liquid loading="lazy" path="assets/img/teleop/teleop_watchdog.jpg" class="img-fluid rounded z-depth-1" zoomable=true alt="Four stacked traces showing injected network state, resulting safety mode, lambda network, and epsilon margin multipliers moving together" caption="Layer 3 through a full mode lifecycle. Margins and λ move in lockstep with the mode, and the intended asymmetry is visible — degradation applies immediately, recovery waits out its dwell." max-width="700px" %}
+<div style="text-align: center; margin: 1.25rem auto;">
+  {% include figure.liquid loading="lazy" path="assets/img/teleop/teleop_watchdog.jpg" class="img-fluid rounded z-depth-1" zoomable=true alt="Four stacked traces showing injected network state, resulting safety mode, lambda network, and epsilon margin multipliers moving together" caption="Layer 3 through a full mode lifecycle. Margins and λ move in lockstep with the mode, and the intended asymmetry is visible — degradation applies immediately, recovery waits out its dwell." max-width="700px" %}
+</div>
 
 **Layer 3** tracked the injected state through every transition. The asymmetry is not only designed but measured: degradation is applied in about 100 ms against a 200 ms requirement across 60 transitions, while recovery consistently waits 3.0 s with a standard deviation of 0.05, so the margins never chatter.
 
@@ -143,7 +145,9 @@ The same difference is easier to see than to read off a log scale:
 
 With every layer verified independently, the complete architecture was evaluated with **30 remote operators** on an L-shaped course: drive out, pick up a bottle, return and release. Each operator completed the task under three conditions — manual teleoperation, manual with the safety filters and adaptive authority, and the full system including the autonomous pick — in a counterbalanced within-subjects design.
 
-{% include figure.liquid loading="lazy" path="assets/img/teleop/teleop_course.jpg" class="img-fluid rounded z-depth-1" zoomable=true alt="Laboratory floor marked with an L-shaped taped course and a labelled start and end point" caption="The evaluation course. Operators drove out along the L, collected the bottle, and returned to the start — none of them in the room with the robot." max-width="700px" %}
+<div style="text-align: center; margin: 1.25rem auto;">
+  {% include figure.liquid loading="lazy" path="assets/img/teleop/teleop_course.jpg" class="img-fluid rounded z-depth-1" zoomable=true alt="Laboratory floor marked with an L-shaped taped course and a labelled start and end point" caption="The evaluation course. Operators drove out along the L, collected the bottle, and returned to the start — none of them in the room with the robot." max-width="700px" %}
+</div>
 
 ---
 

@@ -1,7 +1,7 @@
 ---
 layout: page
 title: "Parallel Neural Networks Adaptive User Interface for Robot Teleoperation"
-description: "First-author IEEE Robotics and Automation Letters paper introducing PNNUI, a teleoperation interface built from two neural networks running in parallel — one trained offline by a genetic algorithm to reduce task time, one trained online to reduce motion jerk. Tested with 20 people."
+description: "First-author IEEE Robotics and Automation Letters paper introducing PNNUI, a teleoperation interface built from two parallel neural networks — one trained offline by a genetic algorithm to prioritize task completion time, one trained online to minimize motion jerk. Tested with 20 subjects."
 img: assets/img/pnnui/pnnui_thumb.jpg
 importance: 2
 category: work
@@ -11,17 +11,19 @@ paper_venue: "IEEE Robotics and Automation Letters"
 related_publications: sharafianardakani2024adaptive
 ---
 
-Every teleoperation system has to decide how the axes of a hand-held device should move the robot. A joystick reports **M** values; the robot accepts **N** commands. When that mapping matches what the operator expects, driving feels natural. When it does not, the operator drives slowly and in short, sharp corrections.
+The objective of this work is to optimize the mapping between human-generated control signals — reported by an **M**-dimensional input device — and the actuators of a remotely controlled robot, which has **N** output degrees of freedom.
 
-The usual fix is to tune the mapping by hand for each device and each robot. **This work learns it instead.** The mapping is treated as an unknown function to be found by search, with no model of the device and no assumption that a given axis of the controller corresponds to anything in particular on the robot. Because the search only has to score how well a candidate mapping performs the task, it works just as well when the relationship between device and robot is not intuitive. The result is **PNNUI**, the Parallel Neural Networks Adaptive User Interface.
+A user interface receives signals from a controller device, such as a joystick, and generates actuator signals to control a mobile robot. That relationship can be written as $$v = g_a(u)$$, where $$u$$ is the input signal, $$v$$ is the output signal, and the parameter vector $$a$$ is unknown. **This relationship may be intuitive or unintuitive, and our focus is on exploring unintuitive relationships** — the cases where the operator cannot simply be told which way to push the stick.
 
-{% include figure.liquid loading="eager" path="assets/img/pnnui/pnnui_architecture.jpg" class="img-fluid rounded z-depth-1" zoomable=true alt="PNNUI architecture: the user interface as an input-output map, and the parallel FCNN and JMNN networks feeding a robot twist command" caption="PNNUI. Left: the interface seen as a map from input signals to actuator commands. Right: the two networks running side by side — FCNN produces the velocity command, JMNN adjusts it using the jerk measured on the robot." %}
+{% include figure.liquid loading="eager" path="assets/img/pnnui/pnnui_architecture.jpg" class="img-fluid rounded z-depth-1" zoomable=true alt="PNNUI architecture: the user interface as an input-output map, and the parallel FCNN and JMNN networks feeding a robot twist command" caption="a) The user interface defined as an input–output map. b) The parallel neural network architecture: FCNN generates the twist, and JMNN fine-tunes it using the actual jerk measured on the robot." %}
 
-Two networks run at the same time and each has one job.
+**PNNUI** adopts a two-parallel neural network architecture to learn the optimal UI map.
 
-**FCNN** (fast-completion) produces the velocity command. It is trained once, before use, by a genetic algorithm that searches for the mapping which completes the task in the least time. **JMNN** (jerk-minimization) runs during teleoperation. It predicts the jerk that the current command will produce and subtracts a small correction from FCNN's output, so sudden changes in motion are smoothed away as the person drives.
+The first network is trained offline in an unsupervised manner and prioritizes task completion time, which reduces the learning curve and can be helpful for applications in which various users with different skills are involved. This **fast-completion neural network (FCNN)** generates a desired robot state, minimizing the initial learning time.
 
-The split matters because the two goals need different training. Finding a usable mapping from scratch takes many full trials and cannot be done while someone is trying to work, so it happens offline and only once. Smoothing depends on the individual — how quickly a person moves the stick, how hard they correct — so it has to happen live. FCNN is trained once and then fixed; JMNN starts fresh for each new user and keeps learning while they drive.
+The second network, the **jerk-minimization neural network (JMNN)**, is trained online with user interaction data and the corresponding jerk values, and focuses on smooth control by minimizing the motion jerks. JMNN generates a control signal, fine-tunes the FCNN output, and guides the robot's state while suppressing abrupt movements.
+
+Once FCNN is trained, its weights are fixed. JMNN then operates in parallel and online for each new user.
 
 <div class="row">
   <div class="col-md-6 mt-3 mt-md-0">
@@ -31,53 +33,65 @@ The split matters because the two goals need different training. Finding a usabl
     {% include figure.liquid loading="lazy" path="assets/img/pnnui/pnnui_jmnn.png" class="img-fluid rounded z-depth-1" zoomable=true alt="JMNN network diagram mapping joystick inputs through two hidden layers to predicted linear and angular jerk" %}
   </div>
 </div>
-<div class="caption">The two networks. FCNN (left) takes the joystick's three axes through one hidden layer of two neurons and outputs the robot's linear and angular velocity — 14 trainable values including biases. JMNN (right) takes the same three inputs through hidden layers of six and two neurons and predicts linear and angular jerk. Both use tanh activations.</div>
+<div class="caption">FCNN (left) is a one-layer NN with two neurons in a single hidden layer and two outputs for the robot's linear and angular velocities. JMNN (right) has 3 inputs, two hidden layers with 6 and 2 neurons, plus two neurons in the output generating linear and angular jerk. All activation functions are the hyperbolic tangent.</div>
 
-## Training FCNN with a genetic algorithm
+## FCNN optimization using a genetic algorithm
 
-A genetic algorithm suits this problem because it never needs a derivative of the mapping. It only needs a score for each candidate, and the score here is simply how long the task took: the number of 100 ms steps the robot needed to reach the goal.
+A genetic algorithm is one approach for finding optimal weights in a neural network in an unsupervised manner, and it fits here because the cost is a property of the completed task rather than something differentiable. The cost function to be minimized was time to complete the task, defined as the number of time steps — 100 ms each — required for the robot to reach the goal position.
 
-Each candidate is a list of the 14 network values. One candidate is loaded, the user drives the robot from point A to point B along a taped corridor, and the time is recorded. If the robot leaves the corridor the trial is skipped and repeated with a new candidate, and failed trials are not used to update the population. Successful trials feed a population of 28 candidates, which is renewed each generation by roulette-wheel selection, single-point crossover, and random mutation of two of the 14 values. A candidate's score also carries a small penalty that grows with its age, so that one early success cannot dominate the search for many generations.
+Including biases, the parameter vector (chromosome length) was **14**, and the population size was set to twice that, at **28**. Fitness is calculated from an **adjusted cost**, which adds a penalty that grows with the age of a chromosome. This penalty was introduced to avoid one good chromosome permanently affecting the algorithm for many generations. Roulette Wheel Selection chooses pairs of chromosomes for crossover and mutation based on their fitness score; we used single-point crossover and random mutation of two genes out of the 14. The implementation used the PyGAD library.
 
-Running this by hand would mean walking the robot back to the start after every trial. Instead the corridor was mapped first and tried in Gazebo and RViz, and the **AMCL** package was used to send the robot back to its starting pose automatically once it reached the goal. Training then ran as a continuous sequence of trials. The search was run ten times, eight of which completed, and stopped when the spread across the population fell below a set threshold — about **one hour** in total. After that, the interface could drive the Turtlebot2 with no hand-tuning of joystick gains at all.
+Algorithm 1 provided a new NN weight vector for each trial, starting from a random initial condition. In this experiment, a single, generic user attempted to drive the robot from a fixed starting point A to a fixed goal point B while navigating along a taped corridor. **If the robot deviated from the corridor, the trial was skipped and repeated with new NN weights**, and populations were updated based only on successful trials.
 
-## Training JMNN while the robot is driven
+Once the robot reached the goal, it was returned to the starting position for the next trial, and for this purpose we designed an auto-home using the **AMCL** package, after first mapping the corridor and working the runs out in Gazebo and RViz. The experiment was conducted ten times, with eight successful trials and two skipped, and the mean of component variance below 0.1 was used as the stop criterion. At the completion of this experiment, which took approximately **one hour**, the tuned interface allowed us to operate the Turtlebot2 using a joystick without guessing or pre-tuning the input device gains.
 
-JMNN reads the same three joystick axes and predicts the linear and angular jerk that will result. At the same time, the actual jerk is measured from the robot's odometry. The difference between the two is the training error, and stochastic gradient descent updates the weights on every time step to reduce it.
+## JMNN optimization using stochastic gradient descent
 
-The target is not zero jerk but a small value, ±0.1, which keeps normal acceleration and deceleration available while removing abrupt changes. The predicted jerk is integrated once to get an acceleration and again to get a velocity change, and that velocity change is subtracted from FCNN's output before the command reaches the robot. The learning rate starts at 0.1 and is multiplied by 0.99 every three seconds, so the network settles instead of continuing to chase every new input.
+JMNN receives the same **M** inputs as FCNN and generates predicted jerks. Simultaneously, we record the actual jerks from the robot, and the loss is the mean-square error between the two. The desired jerk was assumed to be between −0.1 and 0.1, corresponding to acceleration or deceleration.
 
-## Testing with 20 people
+Because the network trains during operation, the optimizer has to be fast, robust, and able to escape saddle points, which is why stochastic gradient descent was used rather than a heavier method. The learning rate was 0.1, decreased by multiplying it by 0.99 every 3 seconds to prevent overtraining as JMNN continuously updates its weights for new user inputs.
 
-Twenty people took part under University of Louisville IRB approval (no. 18.0659). They drove a Turtlebot2 with a Logitech Freedom 2.4 wireless joystick — three axes, each reporting −1 to 1, left at its default sensitivity — over ROS Melodic, with joystick input and odometry recorded to rosbag.
+From the predicted jerk we derive a predicted acceleration, and from that a predicted velocity $$\Delta \hat{v}$$. Since $$\Delta \hat{v}$$ is employed to fine-tune the FCNN's output, we introduce the **adjusted velocity** $$\tilde{v}$$, calculated as the difference between $$v$$, the output of FCNN, and the predicted velocity:
 
-Each person drove the same rectangular course under four conditions: PNNUI and FCNN alone, each with and without an obstacle on the path. Before the PNNUI runs, each person first drove a short corridor so that JMNN saw movement in every direction. Jerk was calculated as the second derivative of velocity from the odometry, and the results were analysed with linear mixed-effects models in R, using a random intercept per person to account for repeated measurements.
+$$
+\tilde{v} = v - \Delta \hat{v}
+$$
 
-{% include figure.liquid loading="lazy" path="assets/img/pnnui/pnnui_experiment_path.jpg" class="img-fluid rounded z-depth-1" zoomable=true alt="Laboratory test course: a taped rectangular path marked A and B with an obstacle, driven by the Turtlebot2" caption="The test course. Each person drove the Turtlebot2 from A to B along the taped rectangular path, with and without the obstacle." %}
+## Experiments with PNNUI
+
+To demonstrate the effectiveness of the algorithm, we carried out experiments in our lab to compare the performance of PNNUI (FCNN + JMNN) with the FCNN algorithm alone, by quantifying the magnitude of the linear and angular jerks and the time required to complete the task.
+
+A total of **20 subjects** were recruited, all at least 18 years old, under University of Louisville Institutional Review Board approval no. 18.0659. Each subject used a joystick to manipulate the robot along a particular rectangular path, with and without an obstacle. We utilized the Logitech Freedom 2.4 wireless joystick, offering three axes of control (x, y, and θ for angular rotation) and outputting values from −1 to 1 per axis; the default sensitivity settings were not changed. The robot was a Turtlebot2, a nonholonomic differential drive platform. ROS Melodic was used for communication and control, with Python 3 managing data, and all trials were collected from saved rosbag files.
+
+A repeated measures design was used across four conditions: PNN+NOBS, FCNN+NOBS, PNN+OBS and FCNN+OBS. For the PNN experiments, the robot was first trained with the user's inputs in a short learning task by teleoperation through a short corridor, so that JMNN learned from all directions. To investigate the smoothness of the task, motion jerk was calculated from the odometry ROS topic; since the data is discrete, the actual jerk was calculated as the second derivative of velocity changes from the robot.
+
+Linear mixed-effects models with a random intercept were used, because the data were collected in a repeated measures experiment design, with the random intercept over subject ID accounting for correlation between observations from the same subject. Analysis used the lme4, lmerTest and multcomp libraries in R.
+
+{% include figure.liquid loading="lazy" path="assets/img/pnnui/pnnui_experiment_path.jpg" class="img-fluid rounded z-depth-1" zoomable=true alt="Laboratory test path: a taped rectangular path marked A and B with an obstacle, driven by the Turtlebot2" caption="Experiment path, the same for both the PNN and FCNN tasks." %}
 
 <div class="row justify-content-center">
   <div class="col-md-6 mt-3 mt-md-0">
     {% include video.liquid path="assets/video/pnnui_demo.mp4" class="img-fluid rounded z-depth-1" controls=true muted=true poster="/assets/img/pnnui/pnnui_demo_poster.jpg" %}
   </div>
 </div>
-<div class="caption">A trial in progress — an operator drives the Turtlebot2 around the course through the learned interface.</div>
+<div class="caption">A trial in progress — an operator drives the Turtlebot2 around the path through the learned interface.</div>
 
 ## Results
 
-| Condition                | Mean linear jerk | Mean angular jerk |
-| ------------------------ | ---------------- | ----------------- |
-| PNNUI, no obstacle       | **0.87**         | **2.60**          |
-| FCNN only, no obstacle   | 1.74             | 8.51              |
-| PNNUI, with obstacle     | **0.95**         | **2.71**          |
-| FCNN only, with obstacle | 1.76             | 8.61              |
+| Task      | Mean linear jerk | Mean angular jerk |
+| --------- | ---------------- | ----------------- |
+| PNN+NOBS  | **0.87**         | **2.60**          |
+| FCNN+NOBS | 1.74             | 8.51              |
+| PNN+OBS   | **0.95**         | **2.71**          |
+| FCNN+OBS  | 1.76             | 8.61              |
 
-Adding the online network **halved linear jerk and cut angular jerk to about a third**. Both differences were significant with and without the obstacle (linear: β = 0.87 and 0.89; angular: β = 5.91 and 6.02; all p < .001). The obstacle itself made no significant difference to either measure, so the improvement holds whether or not the driver has to steer around something.
+The median and mean linear and angular jerks using the PNN algorithm, in both the NOBS and OBS tasks, are considerably smaller than for the FCNN algorithm in the similar tasks. FCNN and PNN had statistically significant differences in both tasks for linear jerk (β = 0.87 and 0.89, both p < .001) and for angular jerk (β = 5.91 and 6.02, both p < .001, R² = 86%). The difference between the OBS and NOBS tasks was not significant for either measure.
 
-**Task time did not get worse.** This is the result that matters most, because smoothing a control signal usually costs speed. The difference in completion time between PNNUI and FCNN alone was not significant.
+**However, we could not find any improvement in the time required to complete the task when either of the algorithms was used** — and the time did not significantly increase either. These findings indicate that the PNNUI architecture **enhanced smoothness without compromising task completion time**.
 
-The error between actual and target jerk was also much lower with PNNUI — a median of 1.14 against 5.28 for linear jerk without the obstacle, and 10.5 against 143.9 for angular jerk. A smaller error here means the robot moves closer to how the operator intended, which is the practical meaning of a transparent interface.
+To quantitatively assess transparency, we measured the error between the actual jerks and the desired jerk value. The mean square error served as the indicator, where lower MSE values indicate higher transparency. MSE was clearly lower in the tasks using PNNUI — a median of 1.14 against 5.28 for linear jerk without the obstacle, and 10.46 against 143.90 for angular jerk.
 
-The online network cost **0.6 ms per update** on average, small enough to leave running throughout teleoperation without slowing the response the operator feels.
+Our real-time neural network loop measured an average compute time of **0.6 milliseconds**, and the system response time through the adaptive interface was largely the same as with the wireless joystick and fixed gains.
 
 <div class="row">
   <div class="col-md-6 mt-3 mt-md-0">
@@ -87,6 +101,6 @@ The online network cost **0.6 ms per update** on average, small enough to leave 
     {% include figure.liquid loading="lazy" path="assets/img/pnnui/pnnui_angular_jerk.jpg" class="img-fluid rounded z-depth-1" zoomable=true alt="Box plot of mean angular jerk across the four experimental conditions" %}
   </div>
 </div>
-<div class="caption">Mean linear (left) and angular (right) jerk for all 20 people across the four conditions. Both PNNUI conditions sit well below the matching FCNN-only condition, and the gap is larger in rotation than in forward motion.</div>
+<div class="caption">Mean linear (left) and angular (right) jerk for all 20 subjects across the four tasks. Both PNN conditions sit well below the matching FCNN-only condition, and the gap is larger in rotation than in forward motion.</div>
 
-Because the cost the genetic algorithm minimises is just task time, nothing in the method is tied to this joystick or this robot. The same procedure applies to any input device with a fixed number of channels and any robot with a fixed number of commands. Full equations, algorithms and statistics are in the paper {% cite sharafianardakani2024adaptive %}.
+Because the cost metric depends only on the learned parameters, more generally any cost dependent on those parameters can be optimized, and the method is not tied to this particular joystick or this particular robot. Full equations, algorithms and statistics are in the paper {% cite sharafianardakani2024adaptive %}.
