@@ -11,7 +11,9 @@ tech: [ROS1, Python, PyTorch, FastSAM, Contact-GraspNet, PointNet++, Kinova Gen3
 
 Teleoperating a 7-DOF arm through a compressed video feed with a quarter-second of lag is slow and error-prone. The operator has no depth cues, no force feedback, and every correction arrives late. Manually servoing a gripper onto a bottle under those conditions is a long, frustrating approach to a task the robot can complete on its own in seconds. **The operator's contribution is therefore reduced to a single click on a single pixel** — which object — with everything after that autonomous.
 
-{% include figure.liquid loading="eager" path="assets/img/teleop/robot_41.jpg" class="img-fluid rounded z-depth-1" zoomable=true alt="ARNA's Kinova Gen3 arm extended toward a workbench in the lab" caption="ARNA's Kinova Gen3 with the wrist-mounted RGBD camera that both shows the operator the scene and supplies the depth the grasp network runs on." %}
+{% include video.liquid path="assets/video/pick_demo.mp4" class="img-fluid rounded z-depth-1" controls=true muted=true loop=true poster="/assets/img/teleop/pick_demo_poster.jpg" %}
+
+<div class="caption">The complete interaction, recorded from the operator's browser. A single click on the object produces the green segmentation contour in the wrist camera view and enables the pick trigger; from there the system estimates the grasp, approaches, re-estimates at close range and closes the gripper without further input.</div>
 
 This page covers the manipulation pipeline. It sits on top of the [browser interface]({{ '/projects/3_remote_ui/' | relative_url }}) the click comes from, and inside the [five-layer safety architecture]({{ '/projects/2_mpc_cbf/' | relative_url }}) that governs the robot while it runs.
 
@@ -19,7 +21,7 @@ This page covers the manipulation pipeline. It sits on top of the [browser inter
 
 The click arrives as a point in the wrist camera image, and four stages turn it into a pose the arm can reach for.
 
-**FastSAM** segments the object. The small variant runs on CPU, taking the colour frame and the click point and returning the instance mask containing that point. Three post-processing steps clean it up: the largest contour is filled solid, killing holes and stray background blobs; the mask is resized back to full frame resolution; and a light Gaussian smooth softens the boundary so aliasing at the edge does not bias the point cloud extracted from it. The result is overlaid as a green contour on the operator's live feed, so they can see what the robot thinks they clicked.
+**FastSAM** segments the object. The small variant runs on CPU, taking the colour frame and the click point and returning the instance mask containing that point. Three post-processing steps condition it: the largest contour is filled solid, removing holes and stray background regions; the mask is resized back to full frame resolution; and a light Gaussian smooth softens the boundary so that aliasing at the edge does not bias the point cloud extracted from it. The result is overlaid as a green contour on the operator's live feed, confirming that the intended object was segmented before anything moves.
 
 **Contact-GraspNet** proposes the grasps. The masked region plus registered depth and camera intrinsics is unprojected into a segmented point cloud, and a PointNet++ encoder with a grasp-contact decoder returns a set of full SE(3) poses with confidence scores.
 
@@ -29,7 +31,7 @@ Deploying it required two adaptations. The network was trained for a Panda gripp
 
 ## Choosing a grasp, and committing to it
 
-Contact-GraspNet returns many candidates and some are unusable: it will happily propose grasps that approach from beneath the table, which the arm cannot execute without putting itself under the table. Each candidate's approach direction is rotated into the robot's base frame and any with an upward component is discarded outright.
+Contact-GraspNet returns many candidates, and some are unusable: it readily proposes grasps that approach from beneath the table, which the arm cannot execute without placing itself underneath. Each candidate's approach direction is rotated into the robot's base frame, and any with an upward component is discarded outright.
 
 The surviving grasps are then re-ranked **by how top-down they are, not by the network's confidence**. That is a deliberate substitution. A high-scoring grasp is one the network believes will hold; a top-down grasp is one this arm, at this height, at table level, can actually reach. Reachability is the binding constraint in practice, so it is what the sort key measures.
 
@@ -41,7 +43,9 @@ Estimating a grasp once from the arm's starting pose and then executing it blind
 
 So the pipeline looks again. Once the arm reaches the pre-grasp stand-off, the wrist camera is much closer to the object and in a different pose than when it first looked. After a 300 ms settle, the node re-fetches the current transform, reprojects the object's known 3-D position into the new image, and re-runs segmentation and grasp estimation from there — updating the target **position** with a much better view of it. If anything in that chain fails, the original estimate is kept and execution continues without interruption.
 
-## Position-only, on purpose
+## Position-only execution
+
+{% include figure.liquid loading="lazy" path="assets/img/teleop/robot_41.jpg" class="img-fluid rounded z-depth-1" zoomable=true alt="ARNA's Kinova Gen3 arm extended toward a workbench in the lab" caption="The Kinova Gen3 mid-approach. Its wrist-mounted RGBD camera both provides the operator's view and supplies the depth the grasp network runs on, which is what makes re-estimating at close range possible." %}
 
 Every move in the pick is position-only: the wrist orientation captured at the start is held fixed throughout, and Contact-GraspNet is used solely to decide _where_ to put the gripper.
 
@@ -60,9 +64,9 @@ That is a concession to the hardware rather than a simplification for its own sa
 
 Stage 0 only runs for non-top-down approaches, giving the planner a feasible descend-from-above path rather than a lateral swipe. A failure in stages 0–2 aborts cleanly to the start pose for the operator to retry; the lift is non-fatal; and on success the arm carries the object home rather than returning to the viewpoint it started from.
 
-## Staying safe while it runs
+## Safety during autonomous execution
 
-The autonomous pick creates a coordination problem: two controllers now want the arm. The trajectory controller is executing a planned Cartesian path, and the arm safety filter exists to overwrite arm commands that look unsafe. Left alone they fight, and the result is worse than either.
+The autonomous pick creates a coordination problem: two controllers now want authority over the arm. The trajectory controller is executing a planned Cartesian path, while the arm safety filter exists to overwrite arm commands that appear unsafe. Running concurrently, they contend, and the result is worse than either acting alone.
 
 The resolution is that **Layer 1 stands down for the duration of the pick** — the one filter whose actuator is under autonomous control — while Layers 0, 2, 3 and 4 stay live. The base is still filtered against obstacles, the network monitor still classifies the link, and the watchdog still governs the whole system and can still force a full stop. The robot never becomes unsupervised; one specific filter yields to a planner that already knows where the arm is going.
 

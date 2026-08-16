@@ -2,10 +2,8 @@
 layout: page
 title: Projects
 permalink: /projects/
-description: Research projects in robotics, control systems, and human-robot interaction.
 nav: true
 nav_order: 3
-display_categories: [work]
 horizontal: true
 ---
 

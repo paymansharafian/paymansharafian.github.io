@@ -19,7 +19,7 @@ education:
     school: "University of Tehran"
     dates: "2018 – 2021"
   - degree: "B.Sc. Electrical Power Engineering"
-    school: "University of Tehran"
+    school: "Azad University of Varamin"
     dates: "2014 – 2018"
 
 skills:
