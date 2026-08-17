@@ -5,6 +5,7 @@ description: "A sensorized handlebar that reads grip finger by finger, paired wi
 img: assets/img/tactile/tactile_handlebar_thumb.jpg
 importance: 7
 category: work
+paper_status: "Under Review: IEEE Transactions on Medical Robotics and Bionics"
 tech: [ROS, Python, PyTorch, TCN, Kalman Filter, FSR Array, ATI F/T, Arduino, SLA 3D Printing, PCB Design]
 ---
 

@@ -16,6 +16,8 @@ tech: [ROS1, Python, C++, Kinova Gen3, Mecanum Base, LiDAR, ATI F/T, EtherCAT, J
   <span class="arna-badge">2023–Present</span>
 </div> -->
 
+{% include figure.liquid loading="eager" path="assets/img/arna/arna_research_scope.jpg" class="img-fluid rounded z-depth-1" zoomable=true alt="Venn diagram of three research areas — Robotics and Advanced Control, Human-Robot Interaction, and Healthcare and Human Factors — meeting at ARNA, beside a photo of the robot at a patient bedside" caption="ARNA sits where three fields overlap, and that is what makes it a research platform rather than a product: control work is only useful here if a person can guide it intuitively, and neither matters unless clinicians accept it at the bedside. Every project below belongs to one of these circles." %}
+
 <h2 class="arna-section-heading">Platform Overview</h2>
 <div class="arna-overview">
   <img class="arna-overview-fig" src="{{ '/assets/img/arna/arna_hardware_scheme.jpg' | relative_url }}" alt="Annotated ARNA hardware: Kinova arm, sensorized handlebar, LiDAR, RGBD cameras, and onboard sensors" loading="lazy" />
