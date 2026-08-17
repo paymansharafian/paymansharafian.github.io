@@ -418,12 +418,12 @@ ninja.data = [{
           description: "",
           section: "News",},{id: "projects-perceived-usefulness-of-robotic-technology-for-patient-fall-prevention",
           title: 'Perceived Usefulness of Robotic Technology for Patient Fall Prevention',
-          description: "Peer-reviewed study (Workplace Health &amp; Safety, 2024) on whether ARNA improves the perceived usefulness of assisted patient ambulation for fall prevention. 38 nursing students rated three conditions — human gait belt, ARNA gait belt, and ARNA harness — with both robot conditions scoring significantly higher.",
+          description: "Peer-reviewed study (Workplace Health &amp; Safety, 2024) on whether ARNA improves the perceived usefulness of assisted patient ambulation for fall prevention. 38 nursing students rated three conditions, a human gait belt, an ARNA gait belt, and an ARNA harness, with both robot conditions scoring significantly higher.",
           section: "Projects",handler: () => {
               window.location.href = "/projects/10_fall_prevention/";
             },},{id: "projects-arna-adaptive-robotic-nursing-assistant",
-          title: 'ARNA — Adaptive Robotic Nursing Assistant',
-          description: "NSF-funded omnidirectional mobile manipulator for clinical nursing assistance — Kinova Gen3 arm on a Mecanum base with LiDAR and ATI Axia 80 F/T sensing. Primary engineer across hardware, software, control, and clinical deployment since 2023.",
+          title: 'ARNA: Adaptive Robotic Nursing Assistant',
+          description: "NSF-funded omnidirectional mobile manipulator for clinical nursing assistance, built around a Kinova Gen3 arm on a Mecanum base with LiDAR and ATI Axia 80 F/T sensing. Primary engineer across hardware, software, control, and clinical deployment since 2023.",
           section: "Projects",handler: () => {
               window.location.href = "/projects/1_arna/";
             },},{id: "projects-network-aware-mpc-cbf-for-safe-remote-teleoperation-of-arna",
@@ -433,12 +433,12 @@ ninja.data = [{
               window.location.href = "/projects/2_mpc_cbf/";
             },},{id: "projects-remote-teleoperation-front-end-design-with-secure-network-transport",
           title: 'Remote Teleoperation Front-End Design with Secure Network Transport',
-          description: "A browser-based teleoperation front end for ARNA — no client software, no VPN. A Next.js GUI reaches the robot through an authenticated Cloudflare tunnel on three isolated WebSocket channels, and the same connection is measured continuously to tell the safety layers how much delay to expect.",
+          description: "A browser-based teleoperation front end for ARNA with no client software and no VPN. A Next.js GUI reaches the robot through an authenticated Cloudflare tunnel on three isolated WebSocket channels, and the same connection is measured continuously to tell the safety layers how much delay to expect.",
           section: "Projects",handler: () => {
               window.location.href = "/projects/3_remote_ui/";
             },},{id: "projects-arna-semi-autonomous-pick-place",
           title: 'ARNA Semi-Autonomous Pick Place',
-          description: "One click on one pixel, and the robot does the rest — FastSAM turns the click into an object mask, Contact-GraspNet proposes 6-DOF grasps, and a staged Cartesian sequence with a closed-loop re-grasp executes the pick while the safety layers stay live underneath.",
+          description: "One click on one pixel and the robot does the rest. FastSAM turns the click into an object mask, Contact-GraspNet proposes 6-DOF grasps, and a staged Cartesian sequence with a closed-loop re-grasp executes the pick while the safety layers stay live underneath.",
           section: "Projects",handler: () => {
               window.location.href = "/projects/4_pick_place/";
             },},{id: "projects-evaluation-of-a-neuroadaptive-admittance-controller-for-ambulation",
@@ -453,16 +453,16 @@ ninja.data = [{
               window.location.href = "/projects/6_intent/";
             },},{id: "projects-tactile-handlebar-and-deep-learning-for-safe-interaction-with-a-robot-nursing-assistant",
           title: 'Tactile Handlebar and Deep Learning for Safe Interaction with a Robot Nursing Assistant...',
-          description: "A sensorized handlebar that reads grip finger by finger, paired with deep sequence models that flag adverse events — panic grips, one-hand releases — while a patient is walking with ARNA. Under review at IEEE Transactions on Medical Robotics and Bionics.",
+          description: "A sensorized handlebar that reads grip finger by finger, paired with deep sequence models that flag adverse events such as panic grips and one-hand releases while a patient is walking with ARNA. Under review at IEEE Transactions on Medical Robotics and Bionics.",
           section: "Projects",handler: () => {
               window.location.href = "/projects/7_tactile/";
             },},{id: "projects-parallel-neural-networks-adaptive-user-interface-for-robot-teleoperation",
           title: 'Parallel Neural Networks Adaptive User Interface for Robot Teleoperation',
-          description: "First-author IEEE Robotics and Automation Letters paper introducing PNNUI, a teleoperation interface built from two parallel neural networks — one trained offline by a genetic algorithm to prioritize task completion time, one trained online to minimize motion jerk. Tested with 20 subjects.",
+          description: "First-author IEEE Robotics and Automation Letters paper introducing PNNUI, a teleoperation interface built from two parallel neural networks, one trained offline by a genetic algorithm to prioritize task completion time and one trained online to minimize motion jerk. Tested with 20 subjects.",
           section: "Projects",handler: () => {
               window.location.href = "/projects/8_pnnui/";
             },},{id: "projects-arna-hospital-trial-clinical-acceptability-study",
-          title: 'ARNA Hospital Trial — Clinical Acceptability Study',
+          title: 'ARNA Hospital Trial: Clinical Acceptability Study',
           description: "First-author IEEE CASE 2025 study evaluating the clinical acceptability of ARNA with 10 patients and 5 nurses at University of Louisville Hospital, using the Technology Acceptance Model across tablet vs. joystick teleoperation and a shared-control walker scenario.",
           section: "Projects",handler: () => {
               window.location.href = "/projects/9_hospital_trial/";
