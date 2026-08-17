@@ -26,7 +26,7 @@ cv:
         area: Electrical and Robotics Engineering
         studyType: Ph.D. Candidate
         start_date: "2022-09"
-        end_date: Present
+        end_date: "2026-12"
         highlights:
           - Working with the Louisville Automation and Robotics Research Institute (LARRI).
 
@@ -120,7 +120,6 @@ cv:
       - name: Embedded and Systems
         keywords:
           - Linux
-          - RTOS
           - EtherCAT
           - CAN
           - SPI

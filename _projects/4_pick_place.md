@@ -11,7 +11,7 @@ tech: [ROS1, Python, PyTorch, FastSAM, Contact-GraspNet, PointNet++, Kinova Gen3
 
 Teleoperating a 7-DOF arm through a compressed video feed with a quarter-second of lag is slow and error-prone. The operator has no depth cues, no force feedback, and every correction arrives late. Manually servoing a gripper onto a bottle under those conditions is a long, frustrating approach to a task the robot can complete on its own in seconds. **The operator's contribution is therefore reduced to a single click on a single pixel** — which object — with everything after that autonomous.
 
-{% include video.liquid path="assets/video/pick_demo.mp4" class="img-fluid rounded z-depth-1" controls=true muted=true loop=true poster="/assets/img/teleop/pick_demo_poster.jpg" %}
+{% include video.liquid cache_bust=true path="assets/video/pick_demo.mp4" class="img-fluid rounded z-depth-1" controls=true muted=true loop=true poster="/assets/img/teleop/pick_demo_poster.jpg" %}
 
 <div class="caption">The complete interaction, recorded from the operator's browser. A single click on the object produces the green segmentation contour in the wrist camera view and enables the pick trigger; from there the system estimates the grasp, approaches, re-estimates at close range and closes the gripper without further input.</div>
 

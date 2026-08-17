@@ -12,15 +12,15 @@ profile:
   image_circular: false
 
 education:
-  - degree: "Ph.D. Robotics Engineering"
+  - degree: "Ph.D. Electrical & Robotics Engineering"
     school: "University of Louisville"
-    dates: "2021 – Present"
+    dates: "2022 – 2026 (expected)"
   - degree: "M.Sc. Mechatronics Engineering"
     school: "University of Tehran"
-    dates: "2018 – 2021"
+    dates: "2017 – 2021"
   - degree: "B.Sc. Electrical Power Engineering"
-    school: "Azad University of Varamin"
-    dates: "2014 – 2018"
+    school: "Islamic Azad University, Varamin"
+    dates: "2012 – 2017"
 
 skills:
   - Python

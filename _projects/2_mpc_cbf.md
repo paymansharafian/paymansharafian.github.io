@@ -2,7 +2,7 @@
 layout: page
 title: "Network-Aware MPC-CBF for Safe Remote Teleoperation of ARNA"
 description: "A five-layer safety architecture that keeps hard guarantees when both the operator and the connection are unreliable. Predictive MPC-CBF filters on the arm and the base, a watchdog that widens margins as the connection degrades, and an authority layer that adapts to the operator — each validated on hardware."
-img: assets/img/teleop/teleop_thumb_lidar.jpg
+img: assets/img/teleop/teleop_thumb.jpg
 importance: 3
 category: work
 paper_status: "In progress: Scheduled for IEEE Transactions on Robotics"
@@ -13,7 +13,7 @@ The integration of Human-Robot Interaction (HRI) in healthcare has increased rem
 
 However, remote teleoperation introduces two unreliable components of its own, and they compound each other. The **operator** is not a trained roboticist, and even a trained one makes mistakes driving a robot they can only see through a camera, so safety cannot rest on operator skill. The **connection** is harder still: across a real internet path, latency is not an edge case but the normal condition. Commands arrive late, and sometimes they do not arrive at all — while the robot must go on protecting itself, its surroundings and anyone nearby. **This project asks how to keep hard safety guarantees when both the operator and the connection are unreliable.**
 
-{% include figure.liquid loading="eager" path="assets/img/teleop/teleop_layers.jpg" class="img-fluid rounded z-depth-1" zoomable=true alt="Block diagram of the five-layer safety architecture split across the Legion laptop and the Blackbird base controller" caption="The architecture, labelled &quot;Phase&quot; in the diagram. Layer 0 measures the connection, Layer 3 turns that into a single safety mode for the whole system, Layers 1 and 2 filter every arm and base command, and Layer 4 adapts authority to the operator. The division down the middle is physical: arm-side layers run on the lab host, the base filter on the robot's own controller." %}
+{% include figure.liquid loading="eager" path="assets/img/teleop/teleop_thumb.jpg" class="img-fluid rounded z-depth-1" zoomable=true alt="Block diagram of the five-layer safety architecture split across the Legion laptop and the Blackbird base controller" caption="The architecture, labelled &quot;Phase&quot; in the diagram. Layer 0 measures the connection, Layer 3 turns that into a single safety mode for the whole system, Layers 1 and 2 filter every arm and base command, and Layer 4 adapts authority to the operator. The division down the middle is physical: arm-side layers run on the lab host, the base filter on the robot's own controller." %}
 
 The architecture is five layers, each with one responsibility, bound by a single rule: **the adaptive layers can only make the robot more cautious, never less safe.** What they scale is the tracking target in the optimiser's cost. The barrier constraints themselves are never relaxed — at any network state, for any operator.
 
@@ -87,17 +87,17 @@ The same difference is easier to see than to read off a log scale:
 
 <div class="row">
   <div class="col-md-6 mt-3 mt-md-0">
-    {% include video.liquid path="assets/video/mpc_arm_jerk_off.mp4" class="img-fluid rounded z-depth-1" controls=true muted=true loop=true poster="/assets/img/teleop/mpc_arm_jerk_off_poster.jpg" %}
+    {% include video.liquid cache_bust=true path="assets/video/mpc_arm_jerk_off.mp4" class="img-fluid rounded z-depth-1" controls=true muted=true loop=true poster="/assets/img/teleop/mpc_arm_jerk_off_poster.jpg" %}
   </div>
   <div class="col-md-6 mt-3 mt-md-0">
-    {% include video.liquid path="assets/video/mpc_arm_jerk_on.mp4" class="img-fluid rounded z-depth-1" controls=true muted=true loop=true poster="/assets/img/teleop/mpc_arm_jerk_on_poster.jpg" %}
+    {% include video.liquid cache_bust=true path="assets/video/mpc_arm_jerk_on.mp4" class="img-fluid rounded z-depth-1" controls=true muted=true loop=true poster="/assets/img/teleop/mpc_arm_jerk_on_poster.jpg" %}
   </div>
 </div>
 <div class="caption">The arm under the same abrupt operator input. Left, with the filter disabled, the command reaches the hardware unaltered and the arm executes it as a jolt. Right, with MPC-CBF active, the jerk term in the cost reshapes the same input into a smooth, continuous move.</div>
 
 <div class="row justify-content-center">
   <div class="col-md-8 mt-3 mt-md-0">
-    {% include video.liquid path="assets/video/mpc_arm_workspace.mp4" class="img-fluid rounded z-depth-1" controls=true muted=true loop=true poster="/assets/img/teleop/mpc_arm_workspace_poster.jpg" %}
+    {% include video.liquid cache_bust=true path="assets/video/mpc_arm_workspace.mp4" class="img-fluid rounded z-depth-1" controls=true muted=true loop=true poster="/assets/img/teleop/mpc_arm_workspace_poster.jpg" %}
   </div>
 </div>
 <div class="caption">The workspace box enforced on hardware. The operator drives the end-effector straight at a face of the box; the filter decelerates it onto the boundary and holds it there instead of allowing it through.</div>
@@ -116,17 +116,17 @@ The same difference is easier to see than to read off a log scale:
 
 <div class="row justify-content-center">
   <div class="col-md-5 mt-3 mt-md-0">
-    {% include video.liquid path="assets/video/mpc_base_obstacle.mp4" class="img-fluid rounded z-depth-1" controls=true muted=true loop=true poster="/assets/img/teleop/mpc_base_obstacle_poster.jpg" %}
+    {% include video.liquid cache_bust=true path="assets/video/mpc_base_obstacle.mp4" class="img-fluid rounded z-depth-1" controls=true muted=true loop=true poster="/assets/img/teleop/mpc_base_obstacle_poster.jpg" %}
   </div>
 </div>
 <div class="caption">Predictive obstacle avoidance on the base. The operator keeps commanding forward motion; the filter plans the deceleration ahead of the obstacle and settles the robot at its stand-off distance rather than braking at the last moment.</div>
 
 <div class="row">
   <div class="col-md-6 mt-3 mt-md-0">
-    {% include video.liquid path="assets/video/mpc_base_jerk_off.mp4" class="img-fluid rounded z-depth-1" controls=true muted=true loop=true poster="/assets/img/teleop/mpc_base_jerk_off_poster.jpg" %}
+    {% include video.liquid cache_bust=true path="assets/video/mpc_base_jerk_off.mp4" class="img-fluid rounded z-depth-1" controls=true muted=true loop=true poster="/assets/img/teleop/mpc_base_jerk_off_poster.jpg" %}
   </div>
   <div class="col-md-6 mt-3 mt-md-0">
-    {% include video.liquid path="assets/video/mpc_base_jerk_on.mp4" class="img-fluid rounded z-depth-1" controls=true muted=true loop=true poster="/assets/img/teleop/mpc_base_jerk_on_poster.jpg" %}
+    {% include video.liquid cache_bust=true path="assets/video/mpc_base_jerk_on.mp4" class="img-fluid rounded z-depth-1" controls=true muted=true loop=true poster="/assets/img/teleop/mpc_base_jerk_on_poster.jpg" %}
   </div>
 </div>
 <div class="caption">The same comparison on the base. Left, unfiltered, the operator's speed changes pass straight to the wheels. Right, with the filter on, the receding-horizon solution smooths them into a continuous motion profile — the difference a user feels most when walking beside the robot.</div>

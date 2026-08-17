@@ -1,0 +1,25 @@
+---
+permalink: /cv/
+title: CV
+nav: true
+nav_order: 5
+sitemap: false
+---
+
+{% assign cv_pdf = '/assets/pdf/Payman_Sharafian_CV.pdf' | relative_url %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>CV — {{ site.first_name }} {{ site.last_name }}</title>
+    <meta name="robots" content="noindex" />
+    <meta http-equiv="refresh" content="0; url={{ cv_pdf }}" />
+    <link rel="canonical" href="{{ cv_pdf }}" />
+    <script>
+      window.location.replace("{{ cv_pdf }}");
+    </script>
+  </head>
+  <body>
+    <p>Opening the CV… If it does not load, <a href="{{ cv_pdf }}">download the PDF directly</a>.</p>
+  </body>
+</html>
