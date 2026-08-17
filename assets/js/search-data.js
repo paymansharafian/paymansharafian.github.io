@@ -428,7 +428,7 @@ ninja.data = [{
               window.location.href = "/projects/1_arna/";
             },},{id: "projects-network-aware-mpc-cbf-for-safe-remote-teleoperation-of-arna",
           title: 'Network-Aware MPC-CBF for Safe Remote Teleoperation of ARNA',
-          description: "A five-layer safety architecture that keeps hard guarantees when both the operator and the connection are unreliable. Predictive MPC-CBF filters on the arm and the base, a watchdog that widens margins as the connection degrades, and an authority layer that adapts to the operator — each validated on hardware.",
+          description: "A five-layer safety architecture that keeps hard guarantees when both the operator and the connection are unreliable. Predictive MPC-CBF filters on the arm and the base, a watchdog that widens margins as the connection degrades, and an authority layer that adapts to the operator, each validated on hardware.",
           section: "Projects",handler: () => {
               window.location.href = "/projects/2_mpc_cbf/";
             },},{id: "projects-remote-teleoperation-front-end-design-with-secure-network-transport",
