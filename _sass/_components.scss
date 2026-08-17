@@ -366,6 +366,27 @@ ul.task-list input[type="checkbox"] {
   }
 }
 
+// Cap how tall a figure can render inside a page. Several source images are
+// square or portrait, and at full column width they filled the whole viewport
+// and pushed the surrounding text off screen. Width scales with the height, so
+// wide diagrams are untouched and only the oversized ones shrink.
+.post article {
+  figure img,
+  .row img {
+    max-height: 440px;
+    width: auto;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  // Thumbnails on the projects listing keep their own fixed geometry.
+  .project-row-img img.project-thumb {
+    max-height: none;
+    width: 280px;
+  }
+}
+
 // Responsive video embeds (YouTube and similar). The theme ships Bootstrap 4,
 // which has no .ratio utility, so the aspect ratio is held with padding.
 .video-embed {
@@ -562,7 +583,10 @@ ul.task-list input[type="checkbox"] {
 .arna-clinical-pair {
   display: flex;
   gap: 1.5rem;
-  margin: 1.5rem 0 2rem;
+  // Flex fixes each image's width, so height cannot be clamped without
+  // distorting them. Bound the row instead and let the images scale.
+  max-width: 700px;
+  margin: 1.5rem auto 2rem;
 
   img {
     flex: 1;
