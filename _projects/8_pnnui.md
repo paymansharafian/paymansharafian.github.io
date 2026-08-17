@@ -1,7 +1,7 @@
 ---
 layout: page
 title: "Parallel Neural Networks Adaptive User Interface for Robot Teleoperation"
-description: "First-author IEEE Robotics and Automation Letters paper introducing PNNUI, a teleoperation interface built from two parallel neural networks — one trained offline by a genetic algorithm to prioritize task completion time, one trained online to minimize motion jerk. Tested with 20 subjects."
+description: "First-author IEEE Robotics and Automation Letters paper introducing PNNUI, a teleoperation interface built from two parallel neural networks, one trained offline by a genetic algorithm to prioritize task completion time and one trained online to minimize motion jerk. Tested with 20 subjects."
 img: assets/img/pnnui/pnnui_thumb.jpg
 importance: 2
 category: work
@@ -11,9 +11,9 @@ paper_venue: "IEEE Robotics and Automation Letters"
 related_publications: sharafianardakani2024adaptive
 ---
 
-The objective of this work is to optimize the mapping between human-generated control signals — reported by an **M**-dimensional input device — and the actuators of a remotely controlled robot, which has **N** output degrees of freedom.
+The objective of this work is to optimize the mapping between human-generated control signals, reported by an M-dimensional input device, and the actuators of a remotely controlled robot, which has N output degrees of freedom.
 
-A user interface receives signals from a controller device, such as a joystick, and generates actuator signals to control a mobile robot. That relationship can be written as $$v = g_a(u)$$, where $$u$$ is the input signal, $$v$$ is the output signal, and the parameter vector $$a$$ is unknown. **This relationship may be intuitive or unintuitive, and our focus is on exploring unintuitive relationships** — the cases where the operator cannot simply be told which way to push the stick.
+A user interface receives signals from a controller device, such as a joystick, and generates actuator signals to control a mobile robot. That relationship can be written as $$v = g_a(u)$$, where $$u$$ is the input signal, $$v$$ is the output signal, and the parameter vector $$a$$ is unknown. This relationship may be intuitive or unintuitive, and our focus is on exploring unintuitive relationships, meaning the cases where the operator cannot simply be told which way to push the stick.
 
 {% include figure.liquid loading="eager" path="assets/img/pnnui/pnnui_architecture.jpg" class="img-fluid rounded z-depth-1" zoomable=true alt="PNNUI architecture: the user interface as an input-output map, and the parallel FCNN and JMNN networks feeding a robot twist command" caption="a) The user interface defined as an input–output map. b) The parallel neural network architecture: FCNN generates the twist, and JMNN fine-tunes it using the actual jerk measured on the robot." %}
 
@@ -37,11 +37,11 @@ Once FCNN is trained, its weights are fixed. JMNN then operates in parallel and 
 
 ## FCNN optimization using a genetic algorithm
 
-A genetic algorithm is one approach for finding optimal weights in a neural network in an unsupervised manner, and it fits here because the cost is a property of the completed task rather than something differentiable. The cost function to be minimized was time to complete the task, defined as the number of time steps — 100 ms each — required for the robot to reach the goal position.
+A genetic algorithm is one approach for finding optimal weights in a neural network in an unsupervised manner, and it fits here because the cost is a property of the completed task rather than something differentiable. The cost function to be minimized was time to complete the task, defined as the number of time steps, 100 ms each, required for the robot to reach the goal position.
 
 Including biases, the parameter vector (chromosome length) was **14**, and the population size was set to twice that, at **28**. Fitness is calculated from an **adjusted cost**, which adds a penalty that grows with the age of a chromosome. This penalty was introduced to avoid one good chromosome permanently affecting the algorithm for many generations. Roulette Wheel Selection chooses pairs of chromosomes for crossover and mutation based on their fitness score; we used single-point crossover and random mutation of two genes out of the 14. The implementation used the PyGAD library.
 
-Algorithm 1 provided a new NN weight vector for each trial, starting from a random initial condition. In this experiment, a single, generic user attempted to drive the robot from a fixed starting point A to a fixed goal point B while navigating along a taped corridor. **If the robot deviated from the corridor, the trial was skipped and repeated with new NN weights**, and populations were updated based only on successful trials.
+Algorithm 1 provided a new NN weight vector for each trial, starting from a random initial condition. In this experiment, a single, generic user attempted to drive the robot from a fixed starting point A to a fixed goal point B while navigating along a taped corridor. If the robot deviated from the corridor, the trial was skipped and repeated with new NN weights, and populations were updated based only on successful trials.
 
 Once the robot reached the goal, it was returned to the starting position for the next trial, and for this purpose we designed an auto-home using the **AMCL** package, after first mapping the corridor and working the runs out in Gazebo and RViz. The experiment was conducted ten times, with eight successful trials and two skipped, and the mean of component variance below 0.1 was used as the stop criterion. At the completion of this experiment, which took approximately **one hour**, the tuned interface allowed us to operate the Turtlebot2 using a joystick without guessing or pre-tuning the input device gains.
 
@@ -76,7 +76,7 @@ Linear mixed-effects models with a random intercept were used, because the data 
     <div class="video-embed video-embed-vertical z-depth-1">
       <iframe
         src="https://www.youtube.com/embed/5VMUEUGS8ds"
-        title="PNNUI trial — driving the Turtlebot2 through the learned interface"
+        title="PNNUI trial, driving the Turtlebot2 through the learned interface"
         frameborder="0"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         allowfullscreen
@@ -84,7 +84,7 @@ Linear mixed-effects models with a random intercept were used, because the data 
     </div>
   </div>
 </div>
-<div class="caption">A trial in progress — an operator drives the Turtlebot2 around the path through the learned interface.</div>
+<div class="caption">A trial in progress, with an operator driving the Turtlebot2 around the path through the learned interface.</div>
 
 ## Results
 
@@ -97,9 +97,9 @@ Linear mixed-effects models with a random intercept were used, because the data 
 
 The median and mean linear and angular jerks using the PNN algorithm, in both the NOBS and OBS tasks, are considerably smaller than for the FCNN algorithm in the similar tasks. FCNN and PNN had statistically significant differences in both tasks for linear jerk (β = 0.87 and 0.89, both p < .001) and for angular jerk (β = 5.91 and 6.02, both p < .001, R² = 86%). The difference between the OBS and NOBS tasks was not significant for either measure.
 
-**However, we could not find any improvement in the time required to complete the task when either of the algorithms was used** — and the time did not significantly increase either. These findings indicate that the PNNUI architecture **enhanced smoothness without compromising task completion time**.
+However, we could not find any improvement in the time required to complete the task when either of the algorithms was used, and the time did not significantly increase either. These findings indicate that the PNNUI architecture enhanced smoothness without compromising task completion time.
 
-To quantitatively assess transparency, we measured the error between the actual jerks and the desired jerk value. The mean square error served as the indicator, where lower MSE values indicate higher transparency. MSE was clearly lower in the tasks using PNNUI — a median of 1.14 against 5.28 for linear jerk without the obstacle, and 10.46 against 143.90 for angular jerk.
+To quantitatively assess transparency, we measured the error between the actual jerks and the desired jerk value. The mean square error served as the indicator, where lower MSE values indicate higher transparency. MSE was clearly lower in the tasks using PNNUI, with a median of 1.14 against 5.28 for linear jerk without the obstacle, and 10.46 against 143.90 for angular jerk.
 
 Our real-time neural network loop measured an average compute time of **0.6 milliseconds**, and the system response time through the adaptive interface was largely the same as with the wireless joystick and fixed gains.
 
