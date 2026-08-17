@@ -16,3 +16,6 @@ vendor
 graphify-out/
 .superpowers/
 .claude/settings.local.json
+
+# WSL artifacts created when copying files from Windows
+*:Zone.Identifier
