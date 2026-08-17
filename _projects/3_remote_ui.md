@@ -20,7 +20,7 @@ Remote operation is only practical if the operator can begin immediately. A nurs
 
 The operator opens a Next.js application in a normal browser and authenticates by identity — single sign-on or an emailed code — rather than by shared credentials. From there, a **Cloudflare tunnel** carries the session. The important property is directional: the lab runs an outbound tunnel client, so there is no port forwarding, no inbound firewall exception, and no VPN for the operator to configure.
 
-{% include video.liquid cache_bust=true path="assets/video/gui_overview.mp4" class="img-fluid rounded z-depth-1" controls=true muted=true poster="/assets/img/teleop/gui_overview_poster.jpg" %}
+{% include video.liquid preload="metadata" path="assets/video/gui_overview_v2.mp4" class="img-fluid rounded z-depth-1" controls=true muted=true poster="/assets/img/teleop/gui_overview_poster.jpg" %}
 
 <div class="caption">A full session from the operator's side: identity authentication through Cloudflare Access, then live camera feeds, base driving, arm control and the gripper — all over the tunnel.</div>
 
