@@ -51,6 +51,13 @@ Before every commit, you **must** run these steps:
     # Check navigation, pages, images, and dark mode.
     ```
 
+3.  **Commit Changes:**
+    ```bash
+    git add .
+    git commit -m "[brief description of changes]"
+    git push
+    ```
+
 ## Critical Configuration
 
 When modifying `_config.yml`, these **must be updated together**:

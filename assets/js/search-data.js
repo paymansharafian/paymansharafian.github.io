@@ -3,21 +3,28 @@ const ninja = document.querySelector('ninja-keys');
 
 // add the home and posts menu items
 ninja.data = [{
-    id: "nav-about",
-    title: "about",
+    id: "nav-home",
+    title: "Home",
     section: "Navigation",
     handler: () => {
       window.location.href = "/";
     },
-  },{id: "nav-projects",
-          title: "projects",
-          description: "A growing collection of your cool projects.",
+  },{id: "nav-about",
+          title: "About",
+          description: "",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/about/";
+          },
+        },{id: "nav-projects",
+          title: "Projects",
+          description: "",
           section: "Navigation",
           handler: () => {
             window.location.href = "/projects/";
           },
         },{id: "nav-publications",
-          title: "publications",
+          title: "Publications",
           description: "",
           section: "Navigation",
           handler: () => {
@@ -25,7 +32,7 @@ ninja.data = [{
           },
         },{id: "nav-cv",
           title: "CV",
-          description: "Curriculum vitae and selected highlights extracted from my LaTeX CV.",
+          description: "",
           section: "Navigation",
           handler: () => {
             window.location.href = "/cv/";
@@ -409,51 +416,56 @@ ninja.data = [{
             },},{id: "news-a-simple-inline-announcement-with-markdown-emoji-sparkles-smile",
           title: 'A simple inline announcement with Markdown emoji! :sparkles: :smile:',
           description: "",
-          section: "News",},{id: "projects-project-1",
-          title: 'project 1',
-          description: "with background image",
+          section: "News",},{id: "projects-perceived-usefulness-of-robotic-technology-for-patient-fall-prevention",
+          title: 'Perceived Usefulness of Robotic Technology for Patient Fall Prevention',
+          description: "Peer-reviewed study (Workplace Health &amp; Safety, 2024) on whether ARNA improves the perceived usefulness of assisted patient ambulation for fall prevention. 38 nursing students rated three conditions — human gait belt, ARNA gait belt, and ARNA harness — with both robot conditions scoring significantly higher.",
           section: "Projects",handler: () => {
-              window.location.href = "/projects/1_project/";
-            },},{id: "projects-project-2",
-          title: 'project 2',
-          description: "a project with a background image and giscus comments",
+              window.location.href = "/projects/10_fall_prevention/";
+            },},{id: "projects-arna-adaptive-robotic-nursing-assistant",
+          title: 'ARNA — Adaptive Robotic Nursing Assistant',
+          description: "NSF-funded omnidirectional mobile manipulator for clinical nursing assistance — Kinova Gen3 arm on a Mecanum base with LiDAR and ATI Axia 80 F/T sensing. Primary engineer across hardware, software, control, and clinical deployment since 2023.",
           section: "Projects",handler: () => {
-              window.location.href = "/projects/2_project/";
-            },},{id: "projects-project-3-with-very-long-name",
-          title: 'project 3 with very long name',
-          description: "a project that redirects to another website",
+              window.location.href = "/projects/1_arna/";
+            },},{id: "projects-network-aware-mpc-cbf-for-safe-remote-teleoperation-of-arna",
+          title: 'Network-Aware MPC-CBF for Safe Remote Teleoperation of ARNA',
+          description: "A five-layer safety architecture that keeps hard guarantees when both the operator and the connection are unreliable. Predictive MPC-CBF filters on the arm and the base, a watchdog that widens margins as the connection degrades, and an authority layer that adapts to the operator — each validated on hardware.",
           section: "Projects",handler: () => {
-              window.location.href = "/projects/3_project/";
-            },},{id: "projects-project-4",
-          title: 'project 4',
-          description: "another without an image",
+              window.location.href = "/projects/2_mpc_cbf/";
+            },},{id: "projects-remote-teleoperation-front-end-design-with-secure-network-transport",
+          title: 'Remote Teleoperation Front-End Design with Secure Network Transport',
+          description: "A browser-based teleoperation front end for ARNA — no client software, no VPN. A Next.js GUI reaches the robot through an authenticated Cloudflare tunnel on three isolated WebSocket channels, and the same connection is measured continuously to tell the safety layers how much delay to expect.",
           section: "Projects",handler: () => {
-              window.location.href = "/projects/4_project/";
-            },},{id: "projects-project-5",
-          title: 'project 5',
-          description: "a project with a background image",
+              window.location.href = "/projects/3_remote_ui/";
+            },},{id: "projects-arna-semi-autonomous-pick-place",
+          title: 'ARNA Semi-Autonomous Pick Place',
+          description: "One click on one pixel, and the robot does the rest — FastSAM turns the click into an object mask, Contact-GraspNet proposes 6-DOF grasps, and a staged Cartesian sequence with a closed-loop re-grasp executes the pick while the safety layers stay live underneath.",
           section: "Projects",handler: () => {
-              window.location.href = "/projects/5_project/";
-            },},{id: "projects-project-6",
-          title: 'project 6',
-          description: "a project with no image",
+              window.location.href = "/projects/4_pick_place/";
+            },},{id: "projects-evaluation-of-a-neuroadaptive-admittance-controller-for-ambulation",
+          title: 'Evaluation of a Neuroadaptive Admittance Controller for Ambulation',
+          description: "First-author Intelligent Service Robotics paper evaluating NAC, a neural-network torque controller that gives ARNA its compliance as a robotic walker. Benchmarked against a classical PD controller with 10 users, then re-tuned and re-tested with 63 nursing students.",
           section: "Projects",handler: () => {
-              window.location.href = "/projects/6_project/";
-            },},{id: "projects-project-7",
-          title: 'project 7',
-          description: "with background image",
+              window.location.href = "/projects/5_nac/";
+            },},{id: "projects-neural-human-intent-estimator-for-an-adaptive-robotic-nursing-assistant",
+          title: 'Neural Human Intent Estimator for an Adaptive Robotic Nursing Assistant',
+          description: "IEEE CASE 2024 paper on HIE-NAC, a model-free neural estimator that infers where a user intends to walk from handlebar forces alone and feeds a neuroadaptive controller. Lyapunov-proven stability, validated with 10 participants across three guided paths.",
           section: "Projects",handler: () => {
-              window.location.href = "/projects/7_project/";
-            },},{id: "projects-project-8",
-          title: 'project 8',
-          description: "an other project with a background image and giscus comments",
+              window.location.href = "/projects/6_intent/";
+            },},{id: "projects-tactile-handlebar-and-deep-learning-for-safe-interaction-with-a-robot-nursing-assistant",
+          title: 'Tactile Handlebar and Deep Learning for Safe Interaction with a Robot Nursing Assistant...',
+          description: "A sensorized handlebar that reads grip finger by finger, paired with deep sequence models that flag adverse events — panic grips, one-hand releases — while a patient is walking with ARNA. Under review at IEEE Transactions on Medical Robotics and Bionics.",
           section: "Projects",handler: () => {
-              window.location.href = "/projects/8_project/";
-            },},{id: "projects-project-9",
-          title: 'project 9',
-          description: "another project with an image 🎉",
+              window.location.href = "/projects/7_tactile/";
+            },},{id: "projects-parallel-neural-networks-adaptive-user-interface-for-robot-teleoperation",
+          title: 'Parallel Neural Networks Adaptive User Interface for Robot Teleoperation',
+          description: "First-author IEEE Robotics and Automation Letters paper introducing PNNUI, a teleoperation interface built from two parallel neural networks — one trained offline by a genetic algorithm to prioritize task completion time, one trained online to minimize motion jerk. Tested with 20 subjects.",
           section: "Projects",handler: () => {
-              window.location.href = "/projects/9_project/";
+              window.location.href = "/projects/8_pnnui/";
+            },},{id: "projects-arna-hospital-trial-clinical-acceptability-study",
+          title: 'ARNA Hospital Trial — Clinical Acceptability Study',
+          description: "First-author IEEE CASE 2025 study evaluating the clinical acceptability of ARNA with 10 patients and 5 nurses at University of Louisville Hospital, using the Technology Acceptance Model across tablet vs. joystick teleoperation and a shared-control walker scenario.",
+          section: "Projects",handler: () => {
+              window.location.href = "/projects/9_hospital_trial/";
             },},{id: "teachings-data-science-fundamentals",
           title: 'Data Science Fundamentals',
           description: "This course covers the foundational aspects of data science, including data collection, cleaning, analysis, and visualization. Students will learn practical skills for working with real-world datasets.",
@@ -492,30 +504,4 @@ ninja.data = [{
         handler: () => {
           window.open("https://www.linkedin.com/in/paymansharafian", "_blank");
         },
-      },{
-      id: 'light-theme',
-      title: 'Change theme to light',
-      description: 'Change the theme of the site to Light',
-      section: 'Theme',
-      handler: () => {
-        setThemeSetting("light");
-      },
-    },
-    {
-      id: 'dark-theme',
-      title: 'Change theme to dark',
-      description: 'Change the theme of the site to Dark',
-      section: 'Theme',
-      handler: () => {
-        setThemeSetting("dark");
-      },
-    },
-    {
-      id: 'system-theme',
-      title: 'Use system default theme',
-      description: 'Change the theme of the site to System Default',
-      section: 'Theme',
-      handler: () => {
-        setThemeSetting("system");
-      },
-    },];
+      },];
