@@ -98,6 +98,10 @@ jobs:
         run: |
           npm install -g purgecss
           purgecss -c purgecss.config.js
+      # _site is already built. Without this marker, GitHub Pages runs its own
+      # Jekyll build over the built output and fails.
+      - name: Disable Jekyll on the published branch 🚫
+        run: touch _site/.nojekyll
       - name: Deploy 🚀
         if: github.event_name != 'pull_request'
         uses: JamesIves/github-pages-deploy-action@v4
