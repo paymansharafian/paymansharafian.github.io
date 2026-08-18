@@ -35,7 +35,6 @@ skills:
   - OpenCV
   - Contact GraspNet
   - MPC-CBF
-  - FABRIK IK
   - Docker
   - Git
 
