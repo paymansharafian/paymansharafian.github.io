@@ -19,3 +19,7 @@ graphify-out/
 
 # WSL artifacts created when copying files from Windows
 *:Zone.Identifier
+.gemini/
+CLAUDE.md
+docs/superpowers/
+.claude/
