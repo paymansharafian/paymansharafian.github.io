@@ -599,7 +599,17 @@ layout: default
       // Horizontal jump arc — forward burst that decays, snaps back on landing
       rob.vx += rob.velX;
       rob.velX *= 0.99;
-      if (rob.onGround) rob.vx += (ROB_BASE_X - rob.vx) * 0.22;
+      // Drift back to the start position after a leap, but only once the path
+      // is clear. Sliding back through a tree the robot has just cleared would
+      // walk it straight into that tree from behind.
+      if (rob.onGround) {
+        const rxNow = Math.round(rob.vx);
+        const blocked = obstacles.some((o) => {
+          const tx = Math.round(o.vx) + 1;
+          return tx + 1 > ROB_BASE_X - 2 && tx < rxNow + 8;
+        });
+        if (!blocked) rob.vx += (ROB_BASE_X - rob.vx) * 0.1;
+      }
       rob.vx = Math.max(1, Math.min(VW * 0.45, rob.vx));
 
       rob.velY += 0.1;
