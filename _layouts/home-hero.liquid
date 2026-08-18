@@ -403,8 +403,8 @@ layout: default
 
     function doJump() {
       if (rob.onGround) {
-        rob.velY = -2.9;
-        rob.velX = 0.7;
+        rob.velY = -2.3;
+        rob.velX = 0.6;
         rob.onGround = false;
       }
     }
@@ -581,8 +581,10 @@ layout: default
       const rx = Math.round(rob.vx) + 2,
         ry = Math.round(rob.vy) - 2;
       for (const o of obstacles) {
-        const ox = Math.round(o.vx);
-        if (ox + 3 > rx && ox < rx + 6 && ry > GY - o.h) return true;
+        // Only the trunk collides. The pixels at ox and ox+2 are short branch
+        // stubs, so hitting them should not end the run.
+        const tx = Math.round(o.vx) + 1;
+        if (tx + 1 > rx && tx < rx + 5 && ry > GY - o.h) return true;
       }
       return false;
     }
@@ -596,11 +598,11 @@ layout: default
 
       // Horizontal jump arc — forward burst that decays, snaps back on landing
       rob.vx += rob.velX;
-      rob.velX *= 0.87;
+      rob.velX *= 0.99;
       if (rob.onGround) rob.vx += (ROB_BASE_X - rob.vx) * 0.22;
-      rob.vx = Math.max(1, Math.min(VW * 0.3, rob.vx));
+      rob.vx = Math.max(1, Math.min(VW * 0.45, rob.vx));
 
-      rob.velY += 0.15;
+      rob.velY += 0.1;
       rob.vy += rob.velY;
       if (rob.vy >= GY) {
         rob.vy = GY;
