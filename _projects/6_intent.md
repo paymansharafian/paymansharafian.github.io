@@ -5,7 +5,7 @@ description: "IEEE CASE 2024 paper on HIE-NAC, a model-free neural estimator tha
 img: assets/img/intent/intent_architecture.png
 importance: 8
 category: work
-tech: [ROS1, C++, Neural Networks, Adaptive Control, Lyapunov Stability, pHRI, Mecanum Base, ATI F/T, R]
+tech: [ROS1, C++, Neural Networks, Adaptive Control, Lyapunov Stability, pHRI, Mecanum Base, ATI F/T]
 paper_url: https://doi.org/10.1109/CASE59546.2024.10711531
 paper_venue: "IEEE CASE 2024"
 video_url: https://youtu.be/SPxjS806RLY

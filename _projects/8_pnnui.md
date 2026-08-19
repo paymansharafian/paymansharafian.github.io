@@ -5,7 +5,7 @@ description: "First-author IEEE Robotics and Automation Letters paper introducin
 img: assets/img/pnnui/pnnui_thumb.jpg
 importance: 2
 category: work
-tech: [ROS Melodic, Python, PyGAD, Genetic Algorithms, Neural Networks, SGD, Gazebo, RViz, AMCL, R, Turtlebot2]
+tech: [ROS Melodic, Python, PyGAD, Genetic Algorithms, Neural Networks, SGD, Gazebo, RViz, AMCL, Turtlebot2]
 paper_url: https://doi.org/10.1109/LRA.2024.3518085
 paper_venue: "IEEE Robotics and Automation Letters"
 related_publications: sharafianardakani2024adaptive
@@ -65,7 +65,7 @@ A total of **20 subjects** were recruited, all at least 18 years old, under Univ
 
 A repeated measures design was used across four conditions: PNN+NOBS, FCNN+NOBS, PNN+OBS and FCNN+OBS. For the PNN experiments, the robot was first trained with the user's inputs in a short learning task by teleoperation through a short corridor, so that JMNN learned from all directions. To investigate the smoothness of the task, motion jerk was calculated from the odometry ROS topic; since the data is discrete, the actual jerk was calculated as the second derivative of velocity changes from the robot.
 
-Linear mixed-effects models with a random intercept were used, because the data were collected in a repeated measures experiment design, with the random intercept over subject ID accounting for correlation between observations from the same subject. Analysis used the lme4, lmerTest and multcomp libraries in R.
+Linear mixed-effects models with a random intercept were used, because the data were collected in a repeated measures experiment design, with the random intercept over subject ID accounting for correlation between observations from the same subject. Pairwise comparisons used Tukey post-hoc tests.
 
 <div style="text-align: center; margin: 1.25rem auto;">
 {% include figure.liquid loading="lazy" path="assets/img/pnnui/pnnui_experiment_path.jpg" class="img-fluid rounded z-depth-1" zoomable=true alt="Laboratory test path: a taped rectangular path marked A and B with an obstacle, driven by the Turtlebot2" caption="Experiment path, the same for both the PNN and FCNN tasks." max-width="700px" %}

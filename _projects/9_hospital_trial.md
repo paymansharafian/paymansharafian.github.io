@@ -5,7 +5,7 @@ description: "First-author IEEE CASE 2025 study evaluating the clinical acceptab
 img: assets/img/arna/arna_with_supervisor.jpg
 importance: 9
 category: work
-tech: [Clinical Trial, Technology Acceptance Model, HRI, Teleoperation, ROS, R, Mixed-Effects Models]
+tech: [Clinical Trial, Technology Acceptance Model, HRI, Teleoperation, ROS, Mixed-Effects Models]
 paper_url: https://doi.org/10.1109/CASE58245.2025.11163757
 paper_venue: "IEEE CASE 2025"
 related_publications: sharafianardakani2025hospital
@@ -13,7 +13,7 @@ related_publications: sharafianardakani2025hospital
 
 Hospitals face a growing shortage of nursing staff, and patient-handling tasks such as fetching items and helping patients walk are a leading source of caregiver strain and injury. ARNA (Adaptive Robotic Nursing Assistant) was built to take on those two tasks, but a robot only helps if the people at the bedside will actually accept it. This trial measured that acceptance directly, with real patients and nurses, inside an active hospital rather than a lab.
 
-I designed and led the study around two clinical scenarios. In the **Patient Sitter** scenario, ten patients teleoperated ARNA's arm to fetch and deliver objects, using a touchscreen tablet in one trial and a joystick in another so the two interfaces could be compared directly. In the **Nurse Walker** scenario, five nurses walked with ARNA as a shared-control robotic walker driven by a neuroadaptive force/torque controller. I instrumented the robot to log objective task-completion times and collected Technology Acceptance Model (TAM) surveys covering perceived usefulness, ease of use, behavioral intention, and satisfaction, then analyzed the data with linear mixed-effects models in R.
+I designed and led the study around two clinical scenarios. In the **Patient Sitter** scenario, ten patients teleoperated ARNA's arm to fetch and deliver objects, using a touchscreen tablet in one trial and a joystick in another so the two interfaces could be compared directly. In the **Nurse Walker** scenario, five nurses walked with ARNA as a shared-control robotic walker driven by a neuroadaptive force/torque controller. I instrumented the robot to log objective task-completion times and collected Technology Acceptance Model (TAM) surveys covering perceived usefulness, ease of use, behavioral intention, and satisfaction, then analyzed the data with linear mixed-effects models.
 
 <div class="row">
   <div class="col-md-4 mt-3 mt-md-0">

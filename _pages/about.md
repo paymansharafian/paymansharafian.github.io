@@ -23,20 +23,60 @@ education:
     dates: "2012 – 2017"
 
 skills:
-  - Python
-  - C / C++
-  - ROS / ROS2
-  - MATLAB
-  - Simulink
-  - MoveIt
-  - Gazebo
-  - PyTorch
-  - FastSAM
-  - OpenCV
-  - Contact GraspNet
-  - MPC-CBF
-  - Docker
-  - Git
+  - group: "Robotics & Control"
+    items:
+      - ROS / ROS2
+      - MoveIt
+      - Gazebo
+      - RViz
+      - Navigation & AMCL
+      - MPC
+      - Control Barrier Functions
+      - Adaptive & Neuroadaptive Control
+      - Lyapunov Stability
+      - Admittance Control
+      - Kalman Filtering
+  - group: "Machine Learning & Perception"
+    items:
+      - PyTorch
+      - ONNX
+      - Temporal Convolutional Networks
+      - LSTM / GRU
+      - Genetic Algorithms
+      - OpenCV
+      - FastSAM
+      - Contact-GraspNet
+      - Point Clouds
+  - group: "Software & Systems"
+    items:
+      - Python
+      - C / C++
+      - MATLAB / Simulink
+      - Linux
+      - Docker
+      - Git
+      - Next.js
+      - JavaScript
+      - WebSockets / rosbridge
+      - Cloudflare Tunnel
+  - group: "Hardware"
+    items:
+      - Kinova Gen3
+      - Mecanum Base
+      - ATI F/T Sensors
+      - LiDAR
+      - Jetson
+      - Arduino
+      - PCB Design
+      - EtherCAT
+      - SLA 3D Printing
+  - group: "Research Methods"
+    items:
+      - Human-Subjects Study Design
+      - IRB Protocols
+      - Statistical Analysis
+      - Mixed-Effects Models
+      - Technology Acceptance Model
 
 selected_papers: false
 social: false
@@ -52,4 +92,10 @@ latest_posts:
   limit: 3
 ---
 
-I am a robotics research engineer and Ph.D. candidate at the University of Louisville, working with the Louisville Automation and Robotics Research Institute (LARRI). My work bridges physical human-robot interaction, sensor fusion, adaptive control, and full-stack robot teleoperation. My background combines robotics software, hardware integration, and technical mentorship. I have supported clinical deployment work, written lab manuals and SOPs, and mentored students in hands-on robotics research.
+I'm a robotics engineer who ended up learning the whole stack because a real robot doesn't let you specialize. For the past four years I've been the lead engineer on ARNA, an NSF-funded robotic nursing assistant — a 7-DOF Kinova arm on a Mecanum base — which means I've spent my time everywhere from soldering its motor-controller PCB back to life to designing adaptive controls and user interfaces, and running several trials including one with actual patients and nurses on an active UofL hospital unit.
+
+The parts I like most are the ones where a whole layer has to hold together at once. A neuroadaptive admittance controller that learns the robot's unmodeled dynamics online at 333 Hz, with the update laws falling out of a Lyapunov proof rather than a tuning session. A five-layer MPC-CBF shared-control stack that keeps hard safety guarantees when both the operator and their internet connection are unreliable. A sensorized handlebar I designed from the FSRs up, running a temporal convolutional network onboard in ONNX that re-checks for a panic grip every 8.2 ms — no cloud, because a safety signal shouldn't depend on Wi-Fi.
+
+I care a lot about whether things actually work outside the lab, which is why I keep ending up in IRB paperwork. Thirty remote operators in different U.S. cities driving a robot in Louisville over the public internet. Sixty-three nursing students. Ten patients and five nurses in a hospital. The numbers I quote are the ones I measured.
+
+Five peer-reviewed journal papers, two as first author (IEEE RA-L and Intelligent Service Robotics), with two more first-author manuscripts in the pipeline. I finish my Ph.D. in Electrical & Robotics Engineering at the University of Louisville in December 2026, and I'm looking for work where the hardware and the software have to survive contact with real people.

@@ -530,6 +530,16 @@ ul.task-list input[type="checkbox"] {
   font-size: 0.875rem;
 }
 
+// Heading above each group of skill pills on the About page.
+.about-skills-group {
+  color: var(--global-text-color-light);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin: 1.1rem 0 0.5rem;
+}
+
 .about-skills-wrap {
   display: flex;
   flex-wrap: wrap;

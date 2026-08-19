@@ -85,11 +85,14 @@ layout: default
 
         {% if page.skills %}
           <h2 class="about-section-heading">Skills</h2>
-          <div class="about-skills-wrap">
-            {% for skill in page.skills %}
-              <span class="skill-pill">{{ skill }}</span>
-            {% endfor %}
-          </div>
+          {% for group in page.skills %}
+            <h3 class="about-skills-group">{{ group.group }}</h3>
+            <div class="about-skills-wrap">
+              {% for skill in group.items %}
+                <span class="skill-pill">{{ skill }}</span>
+              {% endfor %}
+            </div>
+          {% endfor %}
         {% endif %}
 
         {% if page.announcements and page.announcements.enabled %}
