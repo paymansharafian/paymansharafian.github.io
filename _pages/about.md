@@ -98,4 +98,4 @@ The parts I like most are the ones where a whole layer has to hold together at o
 
 I care a lot about whether things actually work outside the lab, which is why I keep ending up in IRB paperwork. Thirty remote operators in different U.S. cities driving a robot in Louisville over the public internet. Sixty-three nursing students. Ten patients and five nurses in a hospital. The numbers I quote are the ones I measured.
 
-Five peer-reviewed journal papers, two as first author (IEEE RA-L and Intelligent Service Robotics), with two more first-author manuscripts in the pipeline. I finish my Ph.D. in Electrical & Robotics Engineering at the University of Louisville in December 2026, and I'm looking for work where the hardware and the software have to survive contact with real people.
+Five peer-reviewed journal papers, three as first author (IEEE RA-L, Intelligent Service Robotics and IEEE CASE), with two more first-author manuscripts in the pipeline. I finish my Ph.D. in Electrical & Robotics Engineering at the University of Louisville in December 2026, and I'm looking for work where the hardware and the software have to survive contact with real people.
