@@ -340,13 +340,11 @@ ul.task-list input[type="checkbox"] {
 .project-tag {
   background: rgba(0, 0, 0, 0.3);
   color: #ffffff;
-  border: 2px solid #00bcd4;
+  border: 1px solid rgba(0, 188, 212, 0.5);
   padding: 2px 8px;
   font-size: 0.75rem;
   border-radius: 4px;
-  box-shadow:
-    0 0 8px rgba(0, 188, 212, 0.4),
-    inset 0 0 8px rgba(0, 188, 212, 0.08);
+  box-shadow: 0 0 4px rgba(0, 188, 212, 0.12);
   font-weight: 600;
 }
 
@@ -813,5 +811,53 @@ ul.task-list input[type="checkbox"] {
 
   tbody tr:last-child {
     font-weight: 500;
+  }
+}
+
+// ── Single-page stacked sections ──────────────────────────────
+// About, Projects and Publications now render as sections on the home page.
+// scroll-margin-top keeps each heading clear of the sticky navbar when a nav
+// anchor jumps to it.
+.page-section {
+  scroll-margin-top: 80px;
+  padding: 4.5rem 2rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.page-section + .page-section {
+  border-top: 1px solid var(--global-divider-color);
+}
+
+#contact {
+  scroll-margin-top: 80px;
+}
+
+.section-heading {
+  font-size: 2.25rem;
+  font-weight: 800;
+  margin: 0 0 2rem;
+  color: var(--global-text-color);
+}
+
+.pub-group-heading {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--global-text-color-light);
+  margin: 2rem 0 0.75rem;
+}
+
+// Highlight the nav item for whichever section is in view.
+.navbar .nav-item.section-active > .nav-link {
+  color: var(--global-theme-color);
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .page-section {
+    padding: 3rem 1rem;
+  }
+  .section-heading {
+    font-size: 1.75rem;
   }
 }
