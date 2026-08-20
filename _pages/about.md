@@ -1,10 +1,13 @@
 ---
-layout: about
+layout: anchor-redirect
+anchor: "#about"
 title: About
 permalink: /about/
 nav: true
 nav_order: 2
-subtitle: Robotics Research Engineer | Ph.D. Candidate | Full-Stack Roboticist
+nav_href: /#about
+sitemap: false
+subtitle: Robotics & Mechatronics Engineer | Ph.D. Candidate | Machine Learning & Perception
 
 profile:
   align: left
@@ -39,14 +42,14 @@ skills:
   - group: "Machine Learning & Perception"
     items:
       - PyTorch
-      - ONNX
+      - TensorFlow
+      - Keras
       - Temporal Convolutional Networks
-      - LSTM / GRU
+      - CNN / LSTM / GRU
       - Genetic Algorithms
       - OpenCV
       - FastSAM
       - Contact-GraspNet
-      - Point Clouds
   - group: "Software & Systems"
     items:
       - Python
@@ -58,26 +61,6 @@ skills:
       - Next.js
       - JavaScript
       - WebSockets / rosbridge
-      - Cloudflare Tunnel
-  - group: "Hardware"
-    items:
-      - Kinova Gen3
-      - Mecanum Base
-      - ATI F/T Sensors
-      - LiDAR
-      - Jetson
-      - Arduino
-      - PCB Design
-      - EtherCAT
-      - SLA 3D Printing
-  - group: "Research Methods"
-    items:
-      - Human-Subjects Study Design
-      - IRB Protocols
-      - Statistical Analysis
-      - Mixed-Effects Models
-      - Technology Acceptance Model
-
 selected_papers: false
 social: false
 
