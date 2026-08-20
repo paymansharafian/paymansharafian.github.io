@@ -1,0 +1,24 @@
+---
+---
+{% assign target = page.anchor | prepend: '/' | relative_url %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>
+      {{ page.title }}
+      —
+      {{ site.first_name }}
+      {{ site.last_name }}
+    </title>
+    <meta name="robots" content="noindex" />
+    <meta http-equiv="refresh" content="0; url={{ target }}" />
+    <link rel="canonical" href="{{ target }}" />
+    <script>
+      window.location.replace('{{ target }}');
+    </script>
+  </head>
+  <body>
+    <p>Taking you to the {{ page.title }} section… <a href="{{ target }}">continue</a>.</p>
+  </body>
+</html>

@@ -1,0 +1,12 @@
+<section id="publications" class="page-section">
+  <div class="section-inner">
+    <h2 class="section-heading">Publications</h2>
+    {% include bib_search.liquid %}
+    <div class="publications">
+      <h3 class="pub-group-heading">Journals</h3>
+      {% bibliography --group_by none --query @*[category=journal]* %}
+      <h3 class="pub-group-heading">Conferences</h3>
+      {% bibliography --group_by none --query @*[category=conference]* %}
+    </div>
+  </div>
+</section>

@@ -141,6 +141,42 @@
       </div>
     </div>
   </nav>
+
+  <script>
+    // Single-page nav: highlight whichever stacked section is currently in view.
+    // page.url no longer distinguishes About/Projects/Publications, so the active
+    // state has to come from scroll position.
+    document.addEventListener('DOMContentLoaded', function () {
+      var links = Array.prototype.slice.call(document.querySelectorAll('#navbar .nav-link[href*="#"]'));
+      if (!links.length) return;
+      var map = {};
+      links.forEach(function (a) {
+        var id = (a.getAttribute('href') || '').split('#')[1];
+        if (id && document.getElementById(id)) map[id] = a.closest('.nav-item');
+      });
+      var ids = Object.keys(map);
+      if (!ids.length) return;
+
+      function clear() {
+        ids.forEach(function (id) {
+          map[id].classList.remove('section-active');
+        });
+      }
+      var obs = new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (e) {
+            if (!e.isIntersecting) return;
+            clear();
+            map[e.target.id].classList.add('section-active');
+          });
+        },
+        { rootMargin: '-45% 0px -50% 0px', threshold: 0 }
+      );
+      ids.forEach(function (id) {
+        obs.observe(document.getElementById(id));
+      });
+    });
+  </script>
   {% if site.enable_progressbar %}
     <!-- Scrolling Progress Bar -->
     <progress id="progress" value="0">

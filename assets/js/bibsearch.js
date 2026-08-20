@@ -52,6 +52,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const updateInputField = () => {
     const hashValue = decodeURIComponent(window.location.hash.substring(1)); // Remove the '#' character
+    // On the single-page layout the hash is a scroll target such as
+    // #publications, not a search term. If it names an element on the page,
+    // leave the filter alone so navigating to the section does not blank it.
+    if (hashValue && document.getElementById(hashValue)) {
+      return;
+    }
     document.getElementById("bibsearch").value = hashValue;
     filterItems(hashValue);
   };

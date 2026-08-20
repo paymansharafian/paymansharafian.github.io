@@ -1,0 +1,78 @@
+{% assign ab = site.pages | where: 'permalink', '/about/' | first %}
+<section id="about" class="page-section">
+  <div class="section-inner">
+    <h2 class="section-heading">About</h2>
+    <div class="about-wrapper">
+      {% if ab.profile and ab.profile.image %}
+        <div class="about-sidebar">
+          {% assign profile_image_path = ab.profile.image | prepend: 'assets/img/' %}
+          <img src="{{ profile_image_path | relative_url }}" alt="{{ ab.profile.image }}" class="about-profile-img" loading="lazy">
+          <div class="about-contact">
+            {% if site.data.socials.email %}
+              <div class="about-contact-row">
+                <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+                <a href="mailto:{{ site.data.socials.email }}">{{ site.data.socials.email }}</a>
+              </div>
+            {% endif %}
+            {% if site.data.socials.scholar_userid %}
+              <div class="about-contact-row">
+                <i class="ai ai-google-scholar" aria-hidden="true"></i>
+                <a href="https://scholar.google.com/citations?user={{ site.data.socials.scholar_userid }}" target="_blank" rel="noopener noreferrer"
+                  >Google Scholar</a
+                >
+              </div>
+            {% endif %}
+            {% if site.data.socials.github_username %}
+              <div class="about-contact-row">
+                <i class="fa-brands fa-github" aria-hidden="true"></i>
+                <a href="https://github.com/{{ site.data.socials.github_username }}" target="_blank" rel="noopener noreferrer">
+                  {{- site.data.socials.github_username -}}
+                </a>
+              </div>
+            {% endif %}
+            {% if site.data.socials.linkedin_username %}
+              <div class="about-contact-row">
+                <i class="fa-brands fa-linkedin" aria-hidden="true"></i>
+                <a href="https://linkedin.com/in/{{ site.data.socials.linkedin_username }}" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="about-main">
+        <p class="desc">{{ ab.subtitle }}</p>
+        <article>
+          {{ ab.content }}
+
+          {% if ab.education %}
+            <h3 class="about-section-heading">Education</h3>
+            <ul class="about-edu-list">
+              {% for entry in ab.education %}
+                <li class="about-edu-item">
+                  <div class="about-edu-dot"></div>
+                  <div>
+                    <span class="about-edu-degree">{{ entry.degree }}</span>
+                    <span class="about-edu-meta"> — {{ entry.dates }} &middot; {{ entry.school }}</span>
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+
+          {% if ab.skills %}
+            <h3 class="about-section-heading">Skills</h3>
+            {% for group in ab.skills %}
+              <h4 class="about-skills-group">{{ group.group }}</h4>
+              <div class="about-skills-wrap">
+                {% for skill in group.items %}
+                  <span class="skill-pill">{{ skill }}</span>
+                {% endfor %}
+              </div>
+            {% endfor %}
+          {% endif %}
+        </article>
+      </div>
+    </div>
+  </div>
+</section>

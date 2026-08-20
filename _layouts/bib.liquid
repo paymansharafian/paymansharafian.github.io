@@ -200,6 +200,14 @@
       {% if entry.doi %}
         <a href="https://doi.org/{{ entry.doi }}" class="btn btn-sm z-depth-0" role="button">DOI</a>
       {% endif %}
+      {%- comment -%}
+        Link through to the project page for this paper, when one exists. Matched
+        on the project's related_publications field.
+      {%- endcomment -%}
+      {% assign linked_project = site.projects | where: 'related_publications', entry.key | first %}
+      {% if linked_project %}
+        <a href="{{ linked_project.url | relative_url }}" class="btn btn-sm z-depth-0" role="button">Detail</a>
+      {% endif %}
       {% if entry.arxiv %}
         <a href="http://arxiv.org/abs/{{ entry.arxiv }}" class="btn btn-sm z-depth-0" role="button">arXiv</a>
       {% endif %}
