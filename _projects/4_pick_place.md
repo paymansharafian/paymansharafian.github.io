@@ -25,17 +25,17 @@ The click arrives as a point in the wrist camera image, and four stages turn it 
 
 **Contact-GraspNet** proposes the grasps. The masked region plus registered depth and camera intrinsics is unprojected into a segmented point cloud, and a PointNet++ encoder with a grasp-contact decoder returns a set of full SE(3) poses with confidence scores.
 
-A learned, shape-agnostic model matters here because the objects do not share a geometry. Trained across thousands of object categories, it returns ranked candidates for convex and concave shapes alike, covering bottles, boxes, bags and tools, where no single geometric prior would fit. It also attaches a confidence score to each rather than producing one answer regardless of quality.
+A learned, shape-agnostic model matters here because the objects do not share a geometry. Trained on roughly a million synthetic and real grasps over ShapeNet objects, it returns ranked candidates for convex and concave shapes alike, where no single geometric prior would fit. It also attaches a confidence score to each rather than producing one answer regardless of quality.
 
 Deploying it required two adaptations. The network was trained for a Panda gripper whose fingertips sit about 85 mm ahead of the wrist, while the Kinova Robotiq's are shorter, so the predicted wrist position is translated 90 mm forward along the grasp approach axis. It also has to run on a 4 GB laptop GPU. Inference is cropped to a bounding region around the clicked object rather than the full scene, cutting input size by roughly 10× for small objects, gradients are disabled, and the model is warm-loaded once at node startup so weights stay resident across every pick instead of being allocated and freed each time. Repeated allocation is what fragments a small VRAM budget until it fails.
 
 ## Choosing a grasp, and committing to it
 
-Contact-GraspNet returns many candidates and some are unusable. It readily proposes grasps that approach from beneath the table, which the arm cannot execute without placing itself underneath. Each candidate's approach direction is rotated into the robot's base frame, and any with an upward component is discarded outright.
+Contact-GraspNet returns many candidates and some are unusable. It readily proposes grasps that approach from beneath the table, which the arm cannot execute without placing itself underneath. Each candidate's approach direction is rotated into the robot's base frame, and any pointing more than 0.5 upward there, roughly 30° above horizontal, is discarded. In the rare case where every candidate points upward, the top-scoring one is used anyway.
 
 The surviving grasps are then re-ranked **by how top-down they are, not by the network's confidence**. That is a deliberate substitution. A high-scoring grasp is one the network believes will hold, while a top-down grasp is one this arm can actually reach at this height and at table level. Reachability is the binding constraint in practice, so it is what the sort key measures.
 
-Execution is **one-shot**. The pipeline commits to the single best candidate and does not fall through to the next on failure. When the best grasp is out of reach, the lower-ranked ones almost always are too, so cycling through them yields a slow sequence of failures rather than a fast one. Because the camera is on the wrist, the effective recovery is to move the robot. The arm returns home and the operator drives a little closer and clicks again from a better viewpoint.
+Execution is **one-shot**. The pipeline commits to the single best candidate and does not fall through to the next on failure. When the best grasp is out of reach, the lower-ranked ones almost always are too, so cycling through them yields a slow sequence of failures rather than a fast one. Because the camera is on the wrist, the effective recovery is to move the robot. The arm returns to where it started and the operator drives a little closer and clicks again from a better viewpoint.
 
 ## Looking again before committing
 
@@ -51,16 +51,16 @@ Every move in the pick is position-only. The wrist orientation captured at the s
 
 That is a concession to the hardware rather than a simplification for its own sake. The Kinova Gen3's Cartesian controller rejects combined position-and-orientation goals for straight-down approaches at table height, which is a workspace constraint of the controller and separate from whether the arm can physically reach. The Robotiq 2F is also an adaptive gripper that conforms as it closes, so it grasps reliably in the arm's natural approach orientation and orientation accuracy buys very little on table-top objects. Decoupling the motion into position-only stages solves one sub-problem at a time, which maximises IK success and keeps the executed trajectory predictable.
 
-| Stage | Action                                        | Target                        |
-| ----- | --------------------------------------------- | ----------------------------- |
-| n/a   | Open gripper                                  | n/a                           |
-| 0     | Rise above pre-grasp _(side approaches only)_ | 0.15 m above stand-off        |
-| 1     | Move to pre-grasp stand-off                   | 150 mm behind the grasp point |
-| n/a   | **Re-segment and re-estimate**                | updated grasp position        |
-| 2     | Advance along the approach axis               | the grasp point               |
-| 3     | Close gripper                                 | n/a                           |
-| 3.5   | Lift straight up                              | vertical clearance            |
-| 4     | Carry to home configuration                   | home joints                   |
+| Stage | Action                                        | Target                                                                 |
+| ----- | --------------------------------------------- | ---------------------------------------------------------------------- |
+| n/a   | Open gripper                                  | n/a                                                                    |
+| 0     | Rise above pre-grasp _(side approaches only)_ | 0.15 m above stand-off                                                 |
+| 1     | Move to pre-grasp stand-off                   | 150 mm behind the predicted wrist pose (240 mm behind the grasp point) |
+| n/a   | **Re-segment and re-estimate**                | updated grasp position                                                 |
+| 2     | Advance along the approach axis               | the grasp point                                                        |
+| 3     | Close gripper                                 | n/a                                                                    |
+| 3.5   | Lift straight up                              | vertical clearance                                                     |
+| 4     | Carry to home configuration                   | home joints                                                            |
 
 Stage 0 only runs for non-top-down approaches, giving the planner a feasible descend-from-above path rather than a lateral swipe. A failure in stages 0 to 2 aborts cleanly to the start pose for the operator to retry, the lift is non-fatal, and on success the arm carries the object home rather than returning to the viewpoint it started from.
 
@@ -68,7 +68,7 @@ Stage 0 only runs for non-top-down approaches, giving the planner a feasible des
 
 The autonomous pick creates a coordination problem, because two controllers now want authority over the arm. The trajectory controller is executing a planned Cartesian path, while the arm safety filter exists to overwrite arm commands that appear unsafe. Running concurrently, they contend, and the result is worse than either acting alone.
 
-The resolution is that **Layer 1 stands down for the duration of the pick**, since it is the one filter whose actuator is under autonomous control, while Layers 0, 2, 3 and 4 stay live. The base is still filtered against obstacles, the network monitor still classifies the connection, and the watchdog still governs the whole system and can still force a full stop. The robot never becomes unsupervised. One specific filter yields to a planner that already knows where the arm is going.
+The resolution is that **Layer 1 holds its output at zero for the duration of the pick**, since it is the one filter whose actuator is under autonomous control, and the planned trajectory reaches the arm through the Kinova action server, a channel that never passes through the filter. Layers 0, 2, 3 and 4 stay live. The base is still filtered against obstacles, the network monitor still classifies the connection, and the watchdog still governs the whole system and can still force a full stop. The robot never becomes unsupervised. One specific filter yields to a planner that already knows where the arm is going.
 
 ---
 
