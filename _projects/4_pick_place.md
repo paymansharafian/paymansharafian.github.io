@@ -1,7 +1,7 @@
 ---
 layout: page
 title: "ARNA Semi-Autonomous Pick Place"
-description: "One click on one pixel and the robot does the rest. FastSAM turns the click into an object mask, Contact-GraspNet proposes 6-DOF grasps, and a staged Cartesian sequence with a closed-loop re-grasp executes the pick while the safety layers stay live underneath."
+description: "One click on one pixel and the robot does the rest. FastSAM turns the click into an object mask, Contact-GraspNet proposes 6-DOF grasps, and a staged Cartesian sequence that re-estimates the grasp once at close range executes the pick, while the base filter and watchdog stay live underneath."
 img: assets/img/teleop/teleop_thumb_pick.jpg
 importance: 5
 category: work
@@ -9,7 +9,7 @@ paper_status: "In progress: Scheduled for IEEE Transactions on Robotics"
 tech: [ROS1, Python, PyTorch, FastSAM, Contact-GraspNet, PointNet++, Kinova Gen3, RGBD, TF2, CUDA]
 ---
 
-Teleoperating a 7-DOF arm through a compressed video feed with a quarter-second of lag is slow and error-prone. The operator has no depth cues, no force feedback, and every correction arrives late. Manually servoing a gripper onto a bottle under those conditions is a long, frustrating approach to a task the robot can complete on its own in seconds. The operator's contribution is therefore reduced to a single click on a single pixel to choose the object, with everything after that autonomous.
+Teleoperating a 7-DOF arm through a compressed video feed over the internet is slow and error-prone. The operator has no depth cues, no force feedback, and every correction costs a round trip. Manually servoing a gripper onto an object under those conditions is a long, frustrating approach to a task the robot can complete on its own. The operator's contribution is therefore reduced to a single click on a single pixel to choose the object, with everything after that autonomous.
 
 {% include video.liquid preload="metadata" path="assets/video/pick_demo.mp4" class="img-fluid rounded z-depth-1" controls=true muted=true loop=true poster="/assets/img/teleop/pick_demo_poster.jpg" %}
 
@@ -21,13 +21,15 @@ This page covers the manipulation pipeline. It sits on top of the [browser inter
 
 The click arrives as a point in the wrist camera image, and four stages turn it into a pose the arm can reach for.
 
+{% include figure.liquid loading="lazy" path="assets/img/teleop/teleop_pick_sequence.jpg" class="img-fluid rounded z-depth-1" zoomable=true alt="Four frames from one click-to-pick trial: the click on a can in the arm camera, the segmented outline, the base camera view at the pre-grasp stand-off, and the can lifted in the gripper" caption="One pick from the user study. (a) The operator's click in the arm camera view. (b) The segmented can, shown before anything moves. (c) The base camera view at the pre-grasp stand-off. (d) The can grasped and lifted, with the outline from (b) still on screen." %}
+
 **FastSAM** segments the object. The small variant runs on CPU, taking the colour frame and the click point and returning the instance mask containing that point. Three post-processing steps condition it. The largest contour is filled solid, which removes holes and stray background regions. The mask is resized back to full frame resolution. A light Gaussian smooth then softens the boundary so that aliasing at the edge does not bias the point cloud extracted from it. The result is overlaid as a green contour on the operator's live feed, confirming that the intended object was segmented before anything moves.
 
 **Contact-GraspNet** proposes the grasps. The masked region plus registered depth and camera intrinsics is unprojected into a segmented point cloud, and a PointNet++ encoder with a grasp-contact decoder returns a set of full SE(3) poses with confidence scores.
 
-A learned, shape-agnostic model matters here because the objects do not share a geometry. Trained on roughly a million synthetic and real grasps over ShapeNet objects, it returns ranked candidates for convex and concave shapes alike, where no single geometric prior would fit. It also attaches a confidence score to each rather than producing one answer regardless of quality.
+A learned, shape-agnostic model matters here because the objects do not share a geometry. Trained on 17 million simulated grasps over ShapeNet objects, it returns ranked candidates for convex and concave shapes alike, where no single geometric prior would fit. It also attaches a confidence score to each rather than producing one answer regardless of quality.
 
-Deploying it required two adaptations. The network was trained for a Panda gripper whose fingertips sit about 85 mm ahead of the wrist, while the Kinova Robotiq's are shorter, so the predicted wrist position is translated 90 mm forward along the grasp approach axis. It also has to run on a 4 GB laptop GPU. Inference is cropped to a bounding region around the clicked object rather than the full scene, cutting input size by roughly 10× for small objects, gradients are disabled, and the model is warm-loaded once at node startup so weights stay resident across every pick instead of being allocated and freed each time. Repeated allocation is what fragments a small VRAM budget until it fails.
+Deploying it required two adaptations. The network was trained for a Panda gripper whose fingers are longer than the installed Robotiq's, so the predicted wrist position is advanced 90 mm along the grasp approach axis to make up the difference. It also has to run on a 4 GB laptop GPU. Inference is cropped to a bounding region around the clicked object rather than the full scene, cutting input size by roughly 10× for small objects, gradients are disabled, and the model is warm-loaded once at node startup so weights stay resident across every pick instead of being allocated and freed each time. Repeated allocation is what fragments a small VRAM budget until it fails.
 
 ## Choosing a grasp, and committing to it
 
@@ -59,7 +61,7 @@ That is a concession to the hardware rather than a simplification for its own sa
 | n/a   | **Re-segment and re-estimate**                | updated grasp position                                                 |
 | 2     | Advance along the approach axis               | the grasp point                                                        |
 | 3     | Close gripper                                 | n/a                                                                    |
-| 3.5   | Lift straight up                              | vertical clearance                                                     |
+| 3.5   | Lift straight up                              | 0.08 m above the grasp point                                           |
 | 4     | Carry to home configuration                   | home joints                                                            |
 
 Stage 0 only runs for non-top-down approaches, giving the planner a feasible descend-from-above path rather than a lateral swipe. A failure in stages 0 to 2 aborts cleanly to the start pose for the operator to retry, the lift is non-fatal, and on success the arm carries the object home rather than returning to the viewpoint it started from.
@@ -68,8 +70,8 @@ Stage 0 only runs for non-top-down approaches, giving the planner a feasible des
 
 The autonomous pick creates a coordination problem, because two controllers now want authority over the arm. The trajectory controller is executing a planned Cartesian path, while the arm safety filter exists to overwrite arm commands that appear unsafe. Running concurrently, they contend, and the result is worse than either acting alone.
 
-The resolution is that **Layer 1 holds its output at zero for the duration of the pick**, since it is the one filter whose actuator is under autonomous control, and the planned trajectory reaches the arm through the Kinova action server, a channel that never passes through the filter. Layers 0, 2, 3 and 4 stay live. The base is still filtered against obstacles, the network monitor still classifies the connection, and the watchdog still governs the whole system and can still force a full stop. The robot never becomes unsupervised. One specific filter yields to a planner that already knows where the arm is going.
+The resolution is that **Layer 1 holds its output at zero for the duration of the pick**, since it is the one filter whose actuator is under autonomous control, and the planned trajectory reaches the arm through the Kinova action server, a channel that never passes through the filter. Layers 0, 2, 3 and 4 stay live. The base is still filtered against obstacles, the network monitor still classifies the connection, and the watchdog can still stop the base. The pick itself runs locally on the workstation, so once it starts it does not depend on the network. One specific filter yields to a planner that already knows where the arm is going. The cost is that the arm's workspace, speed and acceleration barriers are not enforced while the pick runs, and the arm relies on its own motion generator for that interval.
 
 ---
 
-This pipeline is part of a larger remote-teleoperation system being prepared for submission to **IEEE Transactions on Robotics**. It has been exercised by 30 remote operators as the autonomy condition of a user study, and those results will be added here after publication.
+This pipeline is part of a larger remote-teleoperation system being prepared for submission to **IEEE Transactions on Robotics**. In the 30-operator study, adding the pick on top of the safety filters lowered workload (raw NASA-TLX, 0 to 100) from 16.5 to 10.1, and operators rated their own performance higher only once the pick was available. Grasp time did not change. The pick was tested on one object, a can, so its reliability across shapes is still open.

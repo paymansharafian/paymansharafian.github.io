@@ -38,13 +38,13 @@ The session therefore runs on three independent rosbridge instances, isolated at
 | Base camera   | 9091 | Compressed base RGB stream               |
 | Arm camera    | 9092 | Compressed wrist stream                  |
 
-The browser opens three separate clients, so camera bursts on 9091 and 9092 physically cannot block the TCP send queue of 9090. The control channel always has bandwidth. Video and control now degrade independently, which is the right failure mode, because a stuttering picture is recoverable and a stalled stop command is not.
+The browser opens three separate clients, so a camera frame in transit on 9091 or 9092 can no longer hold up a command queued behind it on 9090. All three still share the tunnel and the operator's own connection, but control latency no longer depends on camera activity. Video and control now degrade independently, which is the right failure mode, because a stuttering picture is recoverable and a stalled stop command is not.
 
 ## Compressing the video path
 
 Raw frames are not viable over a tunnel. A single uncompressed 640 × 480 image is around 900 KB, and at even 5 FPS that is a ~36 Mbps stream, beyond both the tunnel and rosbridge's own serialization.
 
-Compression is applied at both ends of the wire. At the source, the wrist frame is halved in each dimension and JPEG-encoded at quality 30, taking a ~900 KB frame down to 15–25 KB. The base camera compresses in the driver at quality 25 with the depth, IR and depth-registration pipelines switched off entirely, since nothing but RGB is needed for the operator's view. In the browser, subscriptions request **CBOR** rather than rosbridge's default base64, which would otherwise add 33% to every frame, and the raw bytes are wrapped in a Blob and handed to `URL.createObjectURL`, keeping a base64 decode out of the per-frame render path. Frame rates are throttled per stream according to their role, with the wrist camera at 30 FPS as the grasping view and the base camera at 12.5 FPS as the driving view. Together these measures give roughly a **35–40× reduction in per-frame data volume**.
+Compression is applied at both ends of the wire. At the source, the wrist frame is halved in each dimension and JPEG-encoded at quality 30, taking a ~900 KB frame down to 15 to 25 KB. The base camera compresses in the driver at quality 25 with the depth, IR and depth-registration pipelines switched off entirely, since nothing but RGB is needed for the operator's view. In the browser, subscriptions request **CBOR** rather than rosbridge's default base64, which would otherwise add 33% to every frame, and the raw bytes are wrapped in a Blob and handed to `URL.createObjectURL`, keeping a base64 decode out of the per-frame render path. Frame rates are throttled per stream according to their role, with the wrist camera at 30 FPS as the grasping view and the base camera at 12.5 FPS as the driving view. Together these measures give roughly a **35 to 40× reduction in per-frame data volume**.
 
 On the lab side, a Legion host runs the ROS master, the rosbridge instances and the compression node, and the robot runs its Blackbird base controller on the local network.
 
@@ -56,10 +56,10 @@ That single stream is what the entire [safety architecture]({{ '/projects/2_mpc_
 
 ## Driven from across the country
 
-The interface has been used by **30 operators**, all of them genuinely remote, some elsewhere in Louisville and some in other cities around the country. Every command in every trial crossed the public internet, so the latency the safety layers compensate for is real rather than simulated.
+The interface has been used by **30 operators**, all of them genuinely remote, some elsewhere in Louisville and some in other cities around the country. Every command in every trial crossed the public internet, so the latency the safety layers compensate for is real rather than simulated. The median round trip stayed below 50 ms, yet the connection was outside NOMINAL for nearly a third of the operating time, and 24 of the 30 operators saw it degrade.
 
 Two related pages cover the rest of the system, the [five-layer safety architecture]({{ '/projects/2_mpc_cbf/' | relative_url }}) that filters every command this interface sends, and the [one-click semi-autonomous pick]({{ '/projects/4_pick_place/' | relative_url }}) reached from the button under the camera view.
 
 ---
 
-This work is being prepared for submission to **IEEE Transactions on Robotics**. Results from the 30-operator study will be added here after publication.
+This work is being prepared for submission to **IEEE Transactions on Robotics**. A short summary of the 30-operator study is on the [safety architecture page]({{ '/projects/2_mpc_cbf/' | relative_url }}#evaluation-with-operators).
