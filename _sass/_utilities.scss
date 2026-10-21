@@ -600,6 +600,12 @@ figure.cover {
   }
 }
 
+// Wide equations scroll sideways on phones. overflow-x: auto alone also turns
+// overflow-y to auto, and glyphs that poke a pixel past the box then show a
+// vertical scroll bar on every equation, so vertical overflow is clipped and
+// the padding keeps tall sums and matrices from being cut.
 mjx-container[jax="CHTML"][display="true"] {
   overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.2em 0;
 }

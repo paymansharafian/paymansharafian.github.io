@@ -34,19 +34,27 @@ The browser pings over the WebSocket bridge every 100 ms. A ROS node holds a rol
 
 Everything downstream depends on that state, so exactly one node is allowed to act on it. The watchdog reads Layer 0 at 10 Hz and pushes one safety mode to both filters through dynamic reconfigure. Safety margins scale ×1.0, ×1.3 and ×1.8 as the connection worsens and hold at ×1.8 once it fails, the arm's prediction horizon stretches, and λ<sub>network</sub> steps 0 → 0.3 → 0.6 → 1.0. Neither filter decides for itself.
 
-A worse network state applies immediately, but returning to a better one requires a 3-second dwell, which keeps the mode from chattering when the connection sits on a threshold. The watchdog sets the mode multiplier m<sub>q</sub> at 10 Hz, and each filter adds its own jitter term locally at 50 to 100 Hz, so every margin follows
+A worse network state applies immediately, but returning to a better one requires a 3-second dwell, which keeps the mode from chattering when the connection sits on a threshold. The watchdog sets the mode multiplier m<sub>q</sub> at 10 Hz, and each filter adds its own jitter term locally at 50 to 100 Hz. The margins on the arm's workspace and speed barriers and on the base's LiDAR barrier follow
 
 $$
-\varepsilon = m_q\,\varepsilon_0 + \kappa\,\sigma_{\mathrm{RTT}}
+\varepsilon_i = m_q\left(\varepsilon_i^{0} + \kappa_i\,\sigma_{\mathrm{RTT}}\right),\quad i \in \{\mathrm{ws},\,\mathrm{sp}\},
+\qquad
+\varepsilon_{\mathrm{lidar}} = m_q\,\varepsilon_{\mathrm{lidar}}^{0} + \kappa_{\mathrm{lidar}}\,\sigma_{\mathrm{RTT}}
 $$
 
-where ε<sub>0</sub> is the baseline margin and κ its sensitivity to jitter. The arm's horizon also grows with measured delay rather than shrinking, N = clip(⌈Δ<sub>max</sub> / Δt⌉, N<sub>min</sub>, N<sub>max</sub>), so the filter always predicts at least as far ahead as a command can be stale. Both laws are design rules that make the filters more cautious as the operator's view of the scene gets older, not bounds derived from the delay.
+where ε<sup>0</sup> is the baseline margin and κ its sensitivity to jitter, so on the arm the mode multiplier scales the jitter term as well. The arm's horizon also grows with measured delay rather than shrinking, N = clip(⌈Δ<sub>max</sub> / Δt⌉, N<sub>min</sub>, N<sub>max</sub>), so the filter always predicts at least as far ahead as a command can be stale. Both laws are design rules that make the filters more cautious as the operator's view of the scene gets older, not bounds derived from the delay.
 
 If no probe returns for 500 ms, or the Layer 0 estimate itself stops for 1.0 s, the watchdog forces FAILED and floods both filters with zero-velocity commands at 20 Hz. The robot stops on its own, with no operator involvement.
 
 ## Layers 1 and 2: the safety filters
 
-Both filters enforce a barrier condition at _every predicted step_ of the horizon rather than only at the current one. The arm uses the discrete-time form h(x<sub>k+1</sub>) ≥ (1 − γ)·h(x<sub>k</sub>), and the base uses the velocity form n<sub>s</sub><sup>⊤</sup>ν<sub>k</sub> ≤ γ<sub>b</sub>·h<sub>s</sub> for each LiDAR sector s, where h<sub>s</sub> is the sector's distance beyond its safety margin. This lets the robot decelerate on a plan instead of arriving at a constraint boundary with no room left. Every operator command is replaced by the closest safe one the tracking cost can reach. Slack variables exist but carry heavy penalties, 10⁶ on the workspace and obstacle constraints and 10⁵ and 10⁴ on the arm's speed and acceleration limits, so the solver only relaxes a constraint when there is no feasible alternative.
+Both filters enforce a barrier condition at _every predicted step_ of the horizon rather than only at the current one. For a safe set C = {x : h(x) ≥ 0}, h is a discrete-time control barrier function if, for some γ ∈ (0, 1], every safe state admits an input with
+
+$$
+h(x_{k+1}) \ge (1-\gamma)\,h(x_k)
+$$
+
+and any controller that satisfies this at every step keeps the state inside C. This lets the robot decelerate on a plan instead of arriving at a constraint boundary with no room left. Every operator command is replaced by the closest safe one the tracking cost can reach. Slack variables keep both programs feasible but carry heavy penalties, so the solver only relaxes a constraint when there is no feasible alternative.
 
 <div class="row">
   <div class="col-md-6 mt-3 mt-md-0">
@@ -60,7 +68,67 @@ Both filters enforce a barrier condition at _every predicted step_ of the horizo
 
 The **arm filter** runs at 100 Hz against a 12-state Cartesian model with a 50 ms velocity lag, holding the end-effector inside a physical box under both a speed cap and an acceleration cap, with jerk penalised as a soft cost. Its horizon is computed from the measured delay and clipped to bounds Layer 3 sets per network mode, 10 to 25 steps at 10 ms each. It operates during teleoperation and stands down for the autonomous pick, so the trajectory controller and the safety filter never contend for the same arm.
 
+The state is x = [p, θ, v, ω] ∈ ℝ<sup>12</sup>, the end-effector position, orientation and their velocities, and the command is a Cartesian velocity u = [u<sup>lin</sup>, u<sup>ang</sup>] ∈ ℝ<sup>6</sup>. The model is
+
+$$
+x_{k+1} = A x_k + B u_k,
+\qquad
+A = \begin{bmatrix} I_6 & \Delta t\, I_6 \\ 0 & a\, I_6 \end{bmatrix},
+\qquad
+B = \begin{bmatrix} 0 \\ (1-a)\, I_6 \end{bmatrix},
+\qquad
+a = 1 - \frac{\Delta t}{\tau}
+$$
+
+and three barriers cover the six workspace faces, the speed and the acceleration,
+
+$$
+\begin{aligned}
+h_{\mathrm{ws}}(x) &= \begin{bmatrix} p - p_{\min} - \varepsilon_{\mathrm{ws}}\mathbf{1} \\ p_{\max} - \varepsilon_{\mathrm{ws}}\mathbf{1} - p \end{bmatrix} \in \mathbb{R}^{6}, \\
+h_{\mathrm{sp}}(x) &= \left(v_{\max} - \varepsilon_{\mathrm{sp}}\right)^{2} - \lVert v \rVert^{2}, \\
+h_{\mathrm{ac}}(u_k) &= \left(a_{\max}\Delta t\right)^{2} - \lVert u_k^{\mathrm{lin}} - \hat{v} \rVert^{2}
+\end{aligned}
+$$
+
+where v̂ is the measured end-effector velocity. The two quadratic barriers are linearised every cycle, about v̂ and about the previous command. Over a horizon of N steps, Layer 1 solves
+
+$$
+\begin{aligned}
+\min_{u,\,\xi}\quad & \sum_{k=0}^{N-1} \Big[ \lVert x_k - x_k^{\mathrm{ref}} \rVert_{Q}^{2} + \lVert u_k \rVert_{W_u}^{2} + \lVert \delta^{2} u_k \rVert_{W_\delta}^{2} \Big] + \lVert x_N - x_N^{\mathrm{ref}} \rVert_{Q_T}^{2} \\
+& \quad + \rho_{\mathrm{ws}} \lVert \xi_{\mathrm{ws}} \rVert^{2} + \rho_{\mathrm{sp}}\, \xi_{\mathrm{sp}}^{2} + \rho_{\mathrm{ac}}\, \xi_{\mathrm{ac}}^{2} \\
+\text{s.t.}\quad & x_{k+1} = A x_k + B u_k, \\
+& h_{\mathrm{ws},i}(x_{k+1}) \ge (1-\gamma_{\mathrm{ws}})\, h_{\mathrm{ws},i}(x_k) - \xi_{\mathrm{ws},i}, \qquad i = 1,\dots,6, \\
+& h_{\mathrm{sp}}(x_{k+1}) \ge (1-\gamma_{\mathrm{sp}})\, h_{\mathrm{sp}}(x_k) - \xi_{\mathrm{sp}}, \\
+& h_{\mathrm{ac}}(u_k) \ge (1-\gamma_{\mathrm{ac}})\, h_{\mathrm{ac}}(u_{k-1}) - \xi_{\mathrm{ac}}, \\
+& {-u_{\max}} \le u_k \le u_{\max}, \qquad \xi \ge 0, \qquad k = 0,\dots,N-1
+\end{aligned}
+$$
+
+and sends only u<sub>0</sub> to the arm. The reference x<sup>ref</sup> comes from forward-integrating the low-pass-filtered operator command after Layer 4 has scaled it, and δ<sup>2</sup>u<sub>k</sub> = u<sub>k</sub> − 2u<sub>k−1</sub> + u<sub>k−2</sub> is the jerk term. The values used are Δt = 10 ms, τ = 50 ms, v<sub>max</sub> = 0.4 m/s, a<sub>max</sub> = 2.0 m/s² (which limits the acceleration to a<sub>max</sub>Δt/τ = 0.4 m/s²), γ<sub>ws</sub> = γ<sub>sp</sub> = 0.5, γ<sub>ac</sub> = 1.0, and slack penalties ρ<sub>ws</sub>, ρ<sub>sp</sub>, ρ<sub>ac</sub> = 10⁶, 10⁵, 10⁴. The program is built in CasADi and solved with OSQP.
+
 The **base filter** runs at 50 Hz on the robot's own controller, solving a 20-step (400 ms) horizon over a three-state velocity-lag model. It is warm-started in OSQP so only the cost and bound vectors change each tick and the factored KKT matrix is reused. A sector arms when an obstacle enters a fixed 1.50 m, and the robot is held off by 0.40 m, a margin that widens automatically with measured RTT jitter. The sector distance is held at its latest scan over the horizon, so the horizon accounts for the velocity lag and the command smoothing rather than for the approach itself. The early slowdown comes from the barrier, which caps the closing speed in proportion to the remaining distance, about 0.07 m/s when an obstacle first enters 1.50 m.
+
+Each base command is a planar velocity u = [v<sub>x</sub>, v<sub>y</sub>, ω], and the actual velocity ν follows the same first-order lag, now with the 20 ms base period. For each armed sector s, with minimum range r<sub>s</sub> and direction n<sub>s</sub>, the model, the barrier and the bound it puts on every predicted velocity are
+
+$$
+\begin{aligned}
+\nu_{k+1} &= a\,\nu_k + (1-a)\,u_k, \\
+h_s &= r_s - d_{\mathrm{safe}} - \varepsilon_{\mathrm{lidar}}, \\
+\mathbf{n}_s^{\top} \nu_k &\le \gamma_b \max\left(h_s,\, 0\right) + \xi_s, \qquad k = 1,\dots,N
+\end{aligned}
+$$
+
+and Layer 2 solves
+
+$$
+\begin{aligned}
+\min_{u,\,\xi}\quad & \sum_{k=0}^{N-1} \lVert u_k - \tilde{u}_H \rVert_{W_k}^{2} + w_\delta \lVert u_0 - u_{-1} \rVert^{2} + \rho_b \lVert \xi \rVert^{2} \\
+\text{s.t.}\quad & \text{the sector bound above, for every armed sector } s, \\
+& {-u_{\max}} \le u_k \le u_{\max}, \qquad \lVert u_0 - u_{-1} \rVert_{\infty} \le a_{\max}\Delta t, \qquad \xi \ge 0
+\end{aligned}
+$$
+
+where ũ<sub>H</sub> is the operator command after Layer 4 has scaled it and u<sub>−1</sub> is the command executed in the previous cycle. Sectors farther than d<sub>act</sub> are released. The values used are N = 20, d<sub>safe</sub> = 0.40 m, d<sub>act</sub> = 1.50 m, γ<sub>b</sub> = 0.065 s⁻¹, u<sub>max</sub> = 0.20 m/s and 0.15 rad/s, a<sub>max</sub> = 0.12 m/s² and 0.20 rad/s², and ρ<sub>b</sub> = 10⁶, which gives 68 decision variables and at most 228 constraints.
 
 ## Layer 4: adapting to the operator
 
@@ -79,7 +147,7 @@ $$
 \tilde{\mathbf{u}}_H = \left(1 - \lambda_{\mathrm{combined}}\right)\mathbf{u}_H
 $$
 
-Because λ<sub>network</sub> = 0 on a NOMINAL connection, an operator on a good network keeps full authority, however hard they push against the filter. λ<sub>combined</sub> enters only the tracking target in the cost and never the constraints, so it cannot make the robot less safe, and the paper shows that, under stated assumptions, this authority loop converges to a unique fixed point.
+Because λ<sub>network</sub> = 0 on a NOMINAL connection, an operator on a good network keeps full authority, however hard they push against the filter. λ<sub>combined</sub> enters only the tracking target in the cost and never the constraints, so it cannot make the robot less safe.
 
 ## Validating each layer independently
 
