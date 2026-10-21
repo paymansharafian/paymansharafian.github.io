@@ -87,7 +87,7 @@ ninja.data = [{
               window.location.href = "/projects/1_arna/";
             },},{id: "projects-network-aware-mpc-cbf-for-safe-remote-teleoperation-of-arna",
           title: 'Network-Aware MPC-CBF for Safe Remote Teleoperation of ARNA',
-          description: "A five-layer safety architecture that keeps hard guarantees when both the operator and the connection are unreliable. Predictive MPC-CBF filters on the arm and the base, a watchdog that widens margins as the connection degrades, and an authority layer that adapts to the operator, each validated on hardware.",
+          description: "A five-layer safety architecture that keeps the robot inside its safety constraints when both the operator and the connection are unreliable. Predictive MPC-CBF filters on the arm and the base, a watchdog that widens margins as the connection degrades, and an authority layer that adapts to the operator only when the network degrades, each validated on hardware and with 30 remote operators.",
           section: "Projects",handler: () => {
               window.location.href = "/projects/2_mpc_cbf/";
             },},{id: "projects-remote-teleoperation-front-end-design-with-secure-network-transport",
@@ -97,7 +97,7 @@ ninja.data = [{
               window.location.href = "/projects/3_remote_ui/";
             },},{id: "projects-arna-semi-autonomous-pick-place",
           title: 'ARNA Semi-Autonomous Pick Place',
-          description: "One click on one pixel and the robot does the rest. FastSAM turns the click into an object mask, Contact-GraspNet proposes 6-DOF grasps, and a staged Cartesian sequence with a closed-loop re-grasp executes the pick while the safety layers stay live underneath.",
+          description: "One click on one pixel and the robot does the rest. FastSAM turns the click into an object mask, Contact-GraspNet proposes 6-DOF grasps, and a staged Cartesian sequence that re-estimates the grasp once at close range executes the pick, while the base filter and watchdog stay live underneath.",
           section: "Projects",handler: () => {
               window.location.href = "/projects/4_pick_place/";
             },},{id: "projects-evaluation-of-a-neuroadaptive-admittance-controller-for-ambulation",
